@@ -27,16 +27,6 @@ uchar_t* readLine(){
       testbuf[buffer_size] = 0;
       return testbuf;
     }
-    if (c == 0x08){
-        if (buffer_size){
-            testbuf[buffer_size--] = 0;
-        }
-    }
-    if (c == 0x7F){
-        if (buffer_size){
-            testbuf[buffer_size--] = 0;
-        }
-    }
     testbuf[buffer_size++] = c;
     if (buffer_size >= BUFFSIZE){
       testbuf[buffer_size] = 0;

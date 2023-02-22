@@ -10,13 +10,14 @@
 #define t_SET       10
 #define t_BLINK     11
 #define t_LEDS      12
+#define t_D13       13
 
 #define t_WORD      19 /* Requires 2 parts following */
 #define t_UNKNOWN   20
 #define t_STATUS    21
 #define t_HELP      22
 
-#define t_D13       30
+
 
 #define t_VERSION   254
 #define t_EOL       255
