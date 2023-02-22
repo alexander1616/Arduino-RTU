@@ -9,10 +9,27 @@ typedef struct {
   int d13BlinkSwitch;
   int ledBlinkSwitch;
   int rgblink;
+  unsigned long timedelay;
+  unsigned long timestart;
 } prjDefault_t;
 
-prjDefault_t prjDefault = {500, LOW, LOW, 0, 0, 0, 0};
+prjDefault_t prjDefault = {500, LOW, LOW, 0, 0, 0, 0, 500, 0};
 //unsigned long d13t1 = 0;
+
+void d13blink(){
+    unsigned long timecurrent;
+    timecurrent = millis();
+    unsigned long tdelay;
+    tdelay = timecurrent - prjDefault.timestart;
+    if (tdelay >= prjDefault.timedelay){
+        if (digitalRead(13)){
+            digitalWrite(13, LOW);
+        } else {
+            digitalWrite(13, HIGH);
+        }
+        prjDefault.timestart = timecurrent;
+    }
+}
 
 void blinkLoop(){
   if (prjDefault.d13BlinkSwitch){
@@ -22,11 +39,13 @@ void blinkLoop(){
     // if (){
     //     d13t1 = d13t2;
     // }
-    digitalWrite(13, HIGH);
-    delay(prjDefault.interval);
-    digitalWrite(13, LOW);
-    delay(prjDefault.interval);
+    // digitalWrite(13, HIGH);
+    // delay(prjDefault.interval);
+    // digitalWrite(13, LOW);
+    // delay(prjDefault.interval);
+    d13blink();
   }
+
   if (prjDefault.ledBlinkSwitch){
     // Serial.print("blink colors: r/g: ");
     // Serial.print(prjDefault.red);
