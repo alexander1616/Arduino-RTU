@@ -11,10 +11,10 @@ typedef struct {
   int rgblink;
   unsigned long timedelay;
   unsigned long timestart;
+  unsigned long timestart2;
 } prjDefault_t;
 
-prjDefault_t prjDefault = {500, LOW, LOW, 0, 0, 0, 0, 500, 0};
-//unsigned long d13t1 = 0;
+prjDefault_t prjDefault = {500, LOW, LOW, 0, 0, 0, 0, 500, 0, 0};
 
 void d13blink(){
     unsigned long timecurrent;
@@ -22,54 +22,54 @@ void d13blink(){
     unsigned long tdelay;
     tdelay = timecurrent - prjDefault.timestart;
     if (tdelay >= prjDefault.timedelay){
-        if (digitalRead(13)){
-            digitalWrite(13, LOW);
-        } else {
-            digitalWrite(13, HIGH);
-        }
+        // if (digitalRead(13)){
+        //     digitalWrite(13, LOW);
+        // } else {
+        //     digitalWrite(13, HIGH);
+        // }
+        digitalRead(13)?digitalWrite(13, LOW):digitalWrite(13, HIGH);
         prjDefault.timestart = timecurrent;
+    }
+}
+
+void ledBlink(){
+    unsigned long timecurrent;
+    timecurrent = millis();
+    unsigned long tdelay;
+    tdelay = timecurrent - prjDefault.timestart2;
+    if ((prjDefault.red == LOW)&&(prjDefault.green == LOW)){
+            if (prjDefault.colorstore){
+                prjDefault.green = HIGH;
+            } else {
+                prjDefault.red = HIGH;
+            }        
+        }
+    digitalWrite(t_RED, prjDefault.red);
+    digitalWrite(t_GREEN, prjDefault.green);
+    if (tdelay >= prjDefault.timedelay){        
+        prjDefault.red?(digitalWrite(t_RED, LOW)):(digitalWrite(t_GREEN, LOW));
+        prjDefault.timestart2 = timecurrent;
     }
 }
 
 void blinkLoop(){
   if (prjDefault.d13BlinkSwitch){
-    //Serial.println("d13 blink");
-    // unsigned long d13t2;
-    // d13t2 = millis();
-    // if (){
-    //     d13t1 = d13t2;
-    // }
-    // digitalWrite(13, HIGH);
-    // delay(prjDefault.interval);
-    // digitalWrite(13, LOW);
-    // delay(prjDefault.interval);
     d13blink();
   }
-
   if (prjDefault.ledBlinkSwitch){
-    // Serial.print("blink colors: r/g: ");
-    // Serial.print(prjDefault.red);
-    // Serial.println(prjDefault.green);
-    if ((prjDefault.red == LOW)&&(prjDefault.green == LOW)){
-        if (prjDefault.colorstore){
-            prjDefault.green = HIGH;
-        } else {
-            prjDefault.red = HIGH;
-        }
-        // Serial.print("Processing red: ");
-        // Serial.print(prjDefault.red);
-        // Serial.println(prjDefault.green);
-    }
-    digitalWrite(t_RED, prjDefault.red);
-    digitalWrite(t_GREEN, prjDefault.green);
-    delay(prjDefault.interval);
-    prjDefault.red?(digitalWrite(t_RED, LOW)):(digitalWrite(t_GREEN, LOW));
-    // if (prjDefault.red){
-    //     digitalWrite(t_RED, LOW);
-    // } else {
-    //     digitalWrite(t_GREEN, LOW);
+    ledBlink();
+    // if ((prjDefault.red == LOW)&&(prjDefault.green == LOW)){
+    //     if (prjDefault.colorstore){
+    //         prjDefault.green = HIGH;
+    //     } else {
+    //         prjDefault.red = HIGH;
+    //     }        
     // }
-    delay(prjDefault.interval);
+    // digitalWrite(t_RED, prjDefault.red);
+    // digitalWrite(t_GREEN, prjDefault.green);
+    // delay(prjDefault.interval);
+    // prjDefault.red?(digitalWrite(t_RED, LOW)):(digitalWrite(t_GREEN, LOW));
+    // delay(prjDefault.interval);
   }
   if (prjDefault.rgblink){
     prjDefault.ledBlinkSwitch = 0;
@@ -131,14 +131,6 @@ void ledProcess(unsigned char arg1){
     break;
   }
 }
-
-// if ((prjDefault.red == LOW)&&(prjDefault.green == LOW)){
-//                     prjDefault.red = HIGH;
-//                 }
-//                 delay(prjDefault.interval);
-//                 digitalWrite(t_RED, prjDefault.red);
-//                 digitalWrite(t_GREEN, prjDefault.green);
-//                 delay(prjDefault.interval);
 
 void processCmd(unsigned char* cmdbuf){
     unsigned char* p = cmdbuf;
@@ -217,4 +209,4 @@ void processCmd(unsigned char* cmdbuf){
             break;
         }
     }
-};
+}
