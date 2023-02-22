@@ -11,6 +11,7 @@
 #define t_BLINK     11
 #define t_LEDS      12
 #define t_D13       13
+#define t_RG        14
 
 #define t_WORD      19 /* Requires 2 parts following */
 #define t_UNKNOWN   20

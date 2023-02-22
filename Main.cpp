@@ -2,6 +2,7 @@
 #include "projectDef.h"
 #include "readLine.h"
 #include "parseInput.h"
+#include "processCmd.h"
 
 void setup() {
     Serial.begin(19200);
@@ -20,8 +21,9 @@ void loop() {
     cmdbuf = parseInput(p);
     if (cmdbuf){
       Serial.println("We have a cmd buffer: ");
-      //processCmd(cmdbuf); to write
+      processCmd(cmdbuf);
     }
     Serial.println("Done with process ");
   }
+  blinkLoop();
 }

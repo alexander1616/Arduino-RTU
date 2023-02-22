@@ -68,7 +68,7 @@ typedef struct {
 } commandBuf_t;
 
 commandBuf_t cmdBuf = {
-    {0}, 0
+    {t_EOL}, 0
 };
 
 void addCmdBuf(unsigned char c){
@@ -77,7 +77,10 @@ void addCmdBuf(unsigned char c){
 };
 
 void newCmdBuf(){
-  cmdBuf.buf[0] = 0;
+  int i = 0;
+  for (;i<10;i++){
+    cmdBuf.buf[i] = t_EOL;
+  }
   cmdBuf.count = 0;
 };
 
@@ -99,7 +102,8 @@ cmdElement_t lookUpTable[] = {
     {'l', 'e', 4, t_LEDS},
     {'s', 't', 6, t_STATUS},
     {'h', 'e', 4, t_HELP},
-    {'v', 'e', 7, t_VERSION}
+    {'v', 'e', 7, t_VERSION},
+    {'r', 'g', 2, t_RG}
 };
 
 #define numCommand sizeof(lookUpTable)/sizeof(lookUpTable[0])
@@ -205,6 +209,10 @@ unsigned char* parseInput(char* s){
                 addCmdBuf(t_WORD);
                 addCmdBuf((unsigned char)(tokenState.num>>8));
                 addCmdBuf((unsigned char)tokenState.num);
+                for (int i = 0; i < cmdBuf.count; i++){
+                    Serial.print("Cmd buf added num: ");
+                    Serial.println(cmdBuf.buf[i]);
+                }
             } else {
                 unsigned char cmd;
                 tokenAddChar(0);
@@ -229,6 +237,10 @@ unsigned char* parseInput(char* s){
         addCmdBuf(t_WORD);
         addCmdBuf((unsigned char)(tokenState.num>>8));
         addCmdBuf((unsigned char)tokenState.num);
+        for (int i = 0; i < cmdBuf.count; i++){
+            Serial.print("Cmd buf added num: ");
+            Serial.println(cmdBuf.buf[i]);
+        }
       } else {
         unsigned char cmd;
         tokenAddChar(0);
