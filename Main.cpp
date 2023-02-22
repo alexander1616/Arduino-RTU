@@ -1,9 +1,13 @@
 #include <Arduino.h>
 #include "projectDef.h"
 #include "readLine.h"
+#include "parseInput.h"
 
-void setup(){
-	Serial.begin(9600);
+void setup() {
+    Serial.begin(19200);
+    pinMode(t_D13, OUTPUT);
+    pinMode(t_RED, OUTPUT);
+    pinMode(t_GREEN, OUTPUT);
 }
 
 void loop() {  
@@ -12,7 +16,12 @@ void loop() {
   unsigned char* cmdbuf;
   p = serialReadLine();
   if (p){
-    Serial.println(p);
+    //Serial.println(p);
+    cmdbuf = parseInput(p);
+    if (cmdbuf){
+      Serial.println("We have a cmd buffer: ");
+      //processCmd(cmdbuf); to write
+    }
     Serial.println("Done with process ");
   }
 }
