@@ -146,9 +146,10 @@ void processCmd(unsigned char* cmdbuf){
             Serial.println(F("* D13     [cmd]             - access digital pin 13        *"));
             Serial.println(F("*   ON         [arg1]       - turns digital pin on         *"));
             Serial.println(F("*   OFF        [arg1]       - turns digital pin off        *"));
+            Serial.println(F("*   BLINK      [arg1]       - default 500 ms               *"));
             Serial.println(F("* LED     [cmd]             - access dual LED pins         *"));
-            Serial.println(F("*   GREEN      [arg1]       - turns green LED on/off       *"));
-            Serial.println(F("*   RED        [arg1]       - turns red LED on/off         *"));
+            Serial.println(F("*   GREEN      [arg1]       - turns green LED on           *"));
+            Serial.println(F("*   RED        [arg1]       - turns red LED on             *"));
             Serial.println(F("*   OFF        [arg1]       - turns led pins off           *"));
             Serial.println(F("*   BLINK      [arg1]       - default 500 ms               *"));
             Serial.println(F("*       RG           [arg2] - r-g blinking for dual LED    *"));
@@ -158,7 +159,7 @@ void processCmd(unsigned char* cmdbuf){
             Serial.println(F("* STATUS  [cmd]             - status menu                  *"));
             Serial.println(F("*   LEDS       [arg1]       - information about LEDs       *"));
             Serial.println(F("* VERSION [cmd]             - current program version      *"));
-            Serial.println(F("* HELP    [cmd]              - displays help menu          *"));
+            Serial.println(F("* HELP    [cmd]             - displays help menu           *"));
             Serial.println(F("************************************************************"));
             break;
         case t_D13:
