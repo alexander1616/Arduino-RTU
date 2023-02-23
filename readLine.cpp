@@ -2,7 +2,7 @@
 #include "readLine.h"
 
 typedef unsigned char uchar_t;
-#define BUFFSIZE 20
+#define BUFFSIZE 100
 
 uchar_t testbuf[BUFFSIZE+1];
 uchar_t buffer_size = 0;

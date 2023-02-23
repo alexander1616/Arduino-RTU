@@ -60,10 +60,11 @@ void tokenAddNum(char c){
     int val = 0;
     val = c - '0';
     tokenState.num = tokenState.num*10 + val;
+    tokenAddChar(c);
 };
 
 typedef struct {
-    unsigned char buf[10];
+    unsigned char buf[30];
     char count;
 } commandBuf_t;
 
@@ -78,7 +79,7 @@ void addCmdBuf(unsigned char c){
 
 void newCmdBuf(){
   int i = 0;
-  for (;i<10;i++){
+  for (;i<30;i++){
     cmdBuf.buf[i] = t_EOL;
   }
   cmdBuf.count = 0;
@@ -112,31 +113,17 @@ unsigned char lookUpToken(char* s, int len){
     int i;
     char c = isUpperCase(s[0])?toLowerCase(s[0]):s[0];
     char c1 = isUpperCase(s[1])?toLowerCase(s[1]):s[1];
-//    Serial.print("Looking up token: c: ");
-//    Serial.print(c);
-//    Serial.print(" c1: ");
-//    Serial.print(c1);
-//    Serial.print(" len: ");
-//    Serial.print(len);
-//    Serial.print(" s: ");
-//    Serial.println(s);
     char buf[50];
     for (i = 0; i < numCommand; i++){
-//        Serial.print("LookupTable 0, 1, len ");
-//        Serial.print(lookUpTable[i].key[0]);
-//        Serial.print(" ");
-//        Serial.print(lookUpTable[i].key[1]);
-//        Serial.print(" ");
-//        Serial.println(lookUpTable[i].len);
         if ((lookUpTable[i].key[0] == c) && 
             (lookUpTable[i].key[1] == c1) && 
             (lookUpTable[i].len == len)){
-                snprintf(buf, 50, "found:[%s][%i]", s, lookUpTable[i].cmd);
-                Serial.println(buf);
+                // snprintf(buf, 50, "found:[%s][%i]", s, lookUpTable[i].cmd);
+                // Serial.println(buf);
                 return lookUpTable[i].cmd;
             }
     }
-    snprintf(buf, 50, "Not found:[%s]", s);
+    snprintf(buf, 50, "Bad Command:[%s]", s);
     Serial.println(buf);
     return t_UNKNOWN;
 };
@@ -164,35 +151,22 @@ void bsProcess(char* s){
 
 unsigned char* parseInput(char* s){
     char buf[40];
-    //snprintf(buf, 40, "+[%s]", s);
-    //Serial.println(buf);
     bsProcess(s);
-    //snprintf(buf, 40, "after[%s]", s);
-    //Serial.println(buf);
     newCmdBuf();
     newToken();
     int currentstate = 0;
     int previousstate = 0;
     char cur;
     int action;
-    //while(1){
-    //    cur = *s++;
     while(cur = *s++){
         currentstate = stateTable[cur];
         action = actionMap[previousstate][currentstate];
-        snprintf(buf, 40, "CurPreChar[%d][%d][%c]", currentstate, previousstate, cur);
-        Serial.println(buf);
-        // Serial.print("Printing current state: ");
-        // Serial.println(currentstate);
-        // Serial.print("Printing previous state: ");
-        // Serial.println(previousstate);
-        // Serial.print("Character is: ");
-        // Serial.println(cur);
+        // snprintf(buf, 40, "CurPreChar[%d][%d][%c]", currentstate, previousstate, cur);
+        // Serial.println(buf);
         switch (action) {
         case 1:
             tokenAddChar(cur);
             if (previousstate == 1){
-                Serial.println("assign curentstate to 1");
                 currentstate = 1;
             };
             break;
@@ -200,8 +174,8 @@ unsigned char* parseInput(char* s){
             tokenAddNum(cur);
             break;
         case 8:
-            Serial.println("Bad Input");
-            Serial.println(cur);
+            // Serial.println("Bad Input");
+            // Serial.println(cur);
             return 0;
             break;
         case 9:
@@ -209,10 +183,10 @@ unsigned char* parseInput(char* s){
                 addCmdBuf(t_WORD);
                 addCmdBuf((unsigned char)(tokenState.num>>8));
                 addCmdBuf((unsigned char)tokenState.num);
-                for (int i = 0; i < cmdBuf.count; i++){
-                    Serial.print("Cmd buf added num: ");
-                    Serial.println(cmdBuf.buf[i]);
-                }
+                // for (int i = 0; i < cmdBuf.count; i++){
+                //     Serial.print("Cmd buf added num: ");
+                //     Serial.println(cmdBuf.buf[i]);
+                // }
             } else {
                 unsigned char cmd;
                 tokenAddChar(0);
@@ -237,10 +211,10 @@ unsigned char* parseInput(char* s){
         addCmdBuf(t_WORD);
         addCmdBuf((unsigned char)(tokenState.num>>8));
         addCmdBuf((unsigned char)tokenState.num);
-        for (int i = 0; i < cmdBuf.count; i++){
-            Serial.print("Cmd buf added num: ");
-            Serial.println(cmdBuf.buf[i]);
-        }
+        // for (int i = 0; i < cmdBuf.count; i++){
+        //     Serial.print("Last ONE! Cmd buf added num: ");
+        //     Serial.println(cmdBuf.buf[i]);
+        // }
       } else {
         unsigned char cmd;
         tokenAddChar(0);
@@ -251,7 +225,6 @@ unsigned char* parseInput(char* s){
         addCmdBuf(cmd);
       };
     }
-
     addCmdBuf(t_EOL);
     return cmdBuf.buf;
 };

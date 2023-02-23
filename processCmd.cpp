@@ -2,7 +2,6 @@
 #include "projectDef.h"
 
 typedef struct {
-  int interval;
   int red;
   int green;
   int colorstore;
@@ -12,9 +11,10 @@ typedef struct {
   unsigned long timedelay;
   unsigned long timestart;
   unsigned long timestart2;
+  unsigned long timestart3;
 } prjDefault_t;
 
-prjDefault_t prjDefault = {500, LOW, LOW, 0, 0, 0, 0, 500, 0, 0};
+prjDefault_t prjDefault = {LOW, LOW, 0, 0, 0, 0, 500, 0, 0, 0};
 
 void d13blink(){
     unsigned long timecurrent;
@@ -22,11 +22,6 @@ void d13blink(){
     unsigned long tdelay;
     tdelay = timecurrent - prjDefault.timestart;
     if (tdelay >= prjDefault.timedelay){
-        // if (digitalRead(13)){
-        //     digitalWrite(13, LOW);
-        // } else {
-        //     digitalWrite(13, HIGH);
-        // }
         digitalRead(13)?digitalWrite(13, LOW):digitalWrite(13, HIGH);
         prjDefault.timestart = timecurrent;
     }
@@ -37,18 +32,32 @@ void ledBlink(){
     timecurrent = millis();
     unsigned long tdelay;
     tdelay = timecurrent - prjDefault.timestart2;
-    if ((prjDefault.red == LOW)&&(prjDefault.green == LOW)){
-            if (prjDefault.colorstore){
-                prjDefault.green = HIGH;
-            } else {
-                prjDefault.red = HIGH;
-            }        
+    if (tdelay >= prjDefault.timedelay){     
+        if (prjDefault.colorstore == 0){
+            digitalWrite(t_GREEN, LOW);
+            digitalRead(t_RED)?(digitalWrite(t_RED, LOW)):(digitalWrite(t_RED, HIGH));
+        } else {
+            digitalWrite(t_RED, LOW);
+            digitalRead(t_GREEN)?(digitalWrite(t_GREEN, LOW)):(digitalWrite(t_GREEN, HIGH));
         }
-    digitalWrite(t_RED, prjDefault.red);
-    digitalWrite(t_GREEN, prjDefault.green);
-    if (tdelay >= prjDefault.timedelay){        
-        prjDefault.red?(digitalWrite(t_RED, LOW)):(digitalWrite(t_GREEN, LOW));
         prjDefault.timestart2 = timecurrent;
+    }
+}
+
+void rgBlink(){
+    unsigned long timecurrent;
+    timecurrent = millis();
+    unsigned long tdelay;
+    tdelay = timecurrent - prjDefault.timestart3;
+    if (tdelay >= prjDefault.timedelay){
+        if (digitalRead(t_RED)){
+            digitalWrite(t_RED, LOW);
+            digitalWrite(t_GREEN, HIGH);
+        } else {
+            digitalWrite(t_GREEN, LOW);
+            digitalWrite(t_RED, HIGH);
+        }
+        prjDefault.timestart3 = timecurrent;
     }
 }
 
@@ -57,40 +66,21 @@ void blinkLoop(){
     d13blink();
   }
   if (prjDefault.ledBlinkSwitch){
-    ledBlink();
-    // if ((prjDefault.red == LOW)&&(prjDefault.green == LOW)){
-    //     if (prjDefault.colorstore){
-    //         prjDefault.green = HIGH;
-    //     } else {
-    //         prjDefault.red = HIGH;
-    //     }        
-    // }
-    // digitalWrite(t_RED, prjDefault.red);
-    // digitalWrite(t_GREEN, prjDefault.green);
-    // delay(prjDefault.interval);
-    // prjDefault.red?(digitalWrite(t_RED, LOW)):(digitalWrite(t_GREEN, LOW));
-    // delay(prjDefault.interval);
-  }
-  if (prjDefault.rgblink){
-    prjDefault.ledBlinkSwitch = 0;
-    digitalWrite(t_RED, HIGH);
-    digitalWrite(t_GREEN, LOW);
-    delay(prjDefault.interval);
-    digitalWrite(t_RED, LOW);
-    digitalWrite(t_GREEN, HIGH);
-    delay(prjDefault.interval);
+    if (prjDefault.rgblink){
+        rgBlink();
+    } else {
+        ledBlink();
+    }
   }
 };
 
 void d13Process(unsigned char arg){
   switch (arg){
   case t_ON:
-    //Serial.println("d13 on");
     prjDefault.d13BlinkSwitch = 0;
     digitalWrite(13, HIGH);
     break;
   case t_OFF:
-    //Serial.println("d13 off");
     prjDefault.d13BlinkSwitch = 0;
     digitalWrite(13, LOW);
     break;
@@ -103,24 +93,16 @@ void d13Process(unsigned char arg){
 void ledProcess(unsigned char arg1){
   switch (arg1){
   case t_RED:
-    //digitalWrite(t_RED, HIGH);
     digitalWrite(t_GREEN, prjDefault.green = LOW);
-    //prjDefault.red?(prjDefault.red = LOW):(prjDefault.red = HIGH);
-    // if (prjDefault.red == HIGH){
-    //     prjDefault.red == LOW;
-    // }
     digitalWrite(t_RED, prjDefault.red = HIGH);
     prjDefault.colorstore = 0;
     break;
   case t_GREEN:
     digitalWrite(t_RED, prjDefault.red = LOW);
-    //prjDefault.green?(prjDefault.green = LOW):(prjDefault.green = HIGH);
-    //digitalWrite(t_GREEN, prjDefault.green);
     digitalWrite(t_GREEN, prjDefault.green = HIGH);
     prjDefault.colorstore = 1;
     break;
   case t_BLINK:
-    //prjDefault.ledBlinkSwitch?(prjDefault.ledBlinkSwitch = 0):(prjDefault.ledBlinkSwitch = 1);
     prjDefault.ledBlinkSwitch = 1;
     break;
   case t_OFF:
@@ -153,6 +135,7 @@ void processCmd(unsigned char* cmdbuf){
             Serial.println(F("* LED       - access dual LED pins       *"));
             Serial.println(F("*   GREEN   - turns green LED on/off     *"));
             Serial.println(F("*   RED     - turns red LED on/off       *"));
+            Serial.println(F("*   OFF     - turns led pins off         *"));
             Serial.println(F("*   BLINK   - default 500 ms             *"));
             Serial.println(F("*     RG    - r-g blinking for dual LED  *"));
             Serial.println(F("* SET       - sets blink interval        *"));
@@ -164,45 +147,72 @@ void processCmd(unsigned char* cmdbuf){
             Serial.println(F("******************************************"));
             break;
         case t_D13:
-            Serial.println("In d13");
             arg1 = *p++;
+            switch (arg1) {
+            case t_ON:
+                break;
+            case t_OFF:
+                break;
+            case t_BLINK:
+                break;
+            default:
+                Serial.println("Bad parameter for D13");
+                return;
+            }
             d13Process(arg1);
             break;
         case t_LED:
-            Serial.println("In LED");
             arg1 = *p++;
-            arg2 = *p++;
-            if(arg2 == t_RG){
-                //prjDefault.rgblink?(prjDefault.rgblink = 0):(prjDefault.rgblink = 1);
-                prjDefault.rgblink = 1;
+            switch (arg1) {
+            case t_RED:
+                break;
+            case t_GREEN:
+                break;
+            case t_OFF:
+                break;
+            case t_BLINK:
+                arg2 = *p;
+                if(arg2 == t_RG){
+                    prjDefault.rgblink = 1;
+                    p++;
+                }
+                break;
+            default:
+                Serial.println("Bad parameter for LED");
+                return;
             }
             ledProcess(arg1);
             break;
         case t_SET:
             int highb;
             int lowb;
-            Serial.println("In Set");
             arg1 = *p++;
             if (arg1 == t_BLINK){
                 arg2 = *p++;
-                Serial.print("Arg2: should be word");
-                Serial.println(arg2);
                 if (arg2 == t_WORD){
                     highb = *p++;
                     lowb = *p++;
-                    prjDefault.interval = (highb<<8)|(lowb);
+                    prjDefault.timedelay = (highb<<8)|(lowb);
                     Serial.print("Interval is set: ");
-                    Serial.println(prjDefault.interval);
+                    Serial.println(prjDefault.timedelay);
+                } else {
+                    Serial.println("Bad parameter for interval");
+                    return;
                 }
+            } else {
+                Serial.println("Bad parameter for SET");
+                return;
             }
             break;
         case t_STATUS:
-            Serial.println("In Status");
             arg1 = *p++;
             if (arg1 == t_LEDS){
                 char buf[30];
-                snprintf(buf, 30, "LEDs: Red[%d], Green[%d]", prjDefault.red, prjDefault.green);
+                snprintf(buf, 30, "LEDs: Red[%d], Green[%d]", digitalRead(t_RED), digitalRead(t_GREEN));
                 Serial.println(buf);
+            } else {
+                Serial.println("Bad parameter for status");
+                return;
             }
             break;
         default:
