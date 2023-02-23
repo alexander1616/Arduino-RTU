@@ -1,6 +1,14 @@
 #include <Arduino.h>
 #include "projectDef.h"
 
+/*************************************************
+*             Process Command                    *
+*                                                *
+*    Executes commands in sequence               *
+*    Viable command sequences defined in help    *
+*************************************************/
+
+//Structure to store function variables
 typedef struct {
   int red;
   int green;
@@ -16,6 +24,7 @@ typedef struct {
 
 prjDefault_t prjDefault = {LOW, LOW, 0, 0, 0, 0, 500, 0, 0, 0};
 
+//blink functions for d13 and led
 void d13blink(){
     unsigned long timecurrent;
     timecurrent = millis();
@@ -74,6 +83,7 @@ void blinkLoop(){
   }
 };
 
+//processing d13 pin and led pins
 void d13Process(unsigned char arg){
   switch (arg){
   case t_ON:
@@ -93,11 +103,15 @@ void d13Process(unsigned char arg){
 void ledProcess(unsigned char arg1){
   switch (arg1){
   case t_RED:
+    prjDefault.ledBlinkSwitch = 0;
+    prjDefault.rgblink = 0;
     digitalWrite(t_GREEN, prjDefault.green = LOW);
     digitalWrite(t_RED, prjDefault.red = HIGH);
     prjDefault.colorstore = 0;
     break;
   case t_GREEN:
+    prjDefault.ledBlinkSwitch = 0;
+    prjDefault.rgblink = 0;
     digitalWrite(t_RED, prjDefault.red = LOW);
     digitalWrite(t_GREEN, prjDefault.green = HIGH);
     prjDefault.colorstore = 1;
@@ -123,7 +137,7 @@ void processCmd(unsigned char* cmdbuf){
         // Serial.println(buf);
         switch (cmd) {
         case t_VERSION:
-            Serial.println("Program Version 1.0");
+            Serial.println(F("Program Version 1.0"));
             break;
         case t_HELP:
             Serial.println(F("******************************************"));
@@ -156,7 +170,7 @@ void processCmd(unsigned char* cmdbuf){
             case t_BLINK:
                 break;
             default:
-                Serial.println("Bad parameter for D13");
+                Serial.println(F("Bad parameter for D13"));
                 return;
             }
             d13Process(arg1);
@@ -178,7 +192,7 @@ void processCmd(unsigned char* cmdbuf){
                 }
                 break;
             default:
-                Serial.println("Bad parameter for LED");
+                Serial.println(F("Bad parameter for LED"));
                 return;
             }
             ledProcess(arg1);
@@ -193,29 +207,35 @@ void processCmd(unsigned char* cmdbuf){
                     highb = *p++;
                     lowb = *p++;
                     prjDefault.timedelay = (highb<<8)|(lowb);
-                    Serial.print("Interval is set: ");
+                    if (prjDefault.timedelay > 10000){
+                        Serial.println(F("Error, delay cannot exceed 10000ms"));
+                        return;
+                    }
+                    Serial.print(F("Interval is set: "));
                     Serial.println(prjDefault.timedelay);
                 } else {
-                    Serial.println("Bad parameter for interval");
+                    Serial.println(F("Bad parameter for interval"));
                     return;
                 }
             } else {
-                Serial.println("Bad parameter for SET");
+                Serial.println(F("Bad parameter for SET"));
                 return;
             }
             break;
         case t_STATUS:
             arg1 = *p++;
             if (arg1 == t_LEDS){
-                char buf[30];
-                snprintf(buf, 30, "LEDs: Red[%d], Green[%d]", digitalRead(t_RED), digitalRead(t_GREEN));
+                char buf[50];
+                snprintf(buf, 50, "d13[%d], Red[%d], Green[%d]",
+                    digitalRead(t_D13), digitalRead(t_RED), digitalRead(t_GREEN));
                 Serial.println(buf);
             } else {
-                Serial.println("Bad parameter for status");
+                Serial.println(F("Bad parameter for status"));
                 return;
             }
             break;
         default:
+            Serial.println(F("Not viable commands"));
             break;
         }
     }

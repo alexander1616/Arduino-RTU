@@ -2,7 +2,18 @@
 #include "parseInput.h"
 #define MAX_TOKEN_SIZE 12
 #include "projectDef.h"
+#define MAXCMDBUF 30
 
+/*************************************************
+*               Parse Input                      *
+*                                                *
+*    Parses a string, looks for "commands"       *
+*    to store in command buffer to be executed   *
+*    Commands can be configured in defines       *
+*************************************************/
+
+
+//character array to help determine system state
 char stateTable[256] = {
     3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
     3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
@@ -22,12 +33,6 @@ char stateTable[256] = {
     3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3
 };
 
-typedef struct {
-    int len;
-    char buf[MAX_TOKEN_SIZE +1];
-    int num;
-} tokenElement_t;
-
 /*
 action = 0 (initial)
 action = 1 (alpha -> append)
@@ -41,6 +46,14 @@ char actionMap[4][4] = {
     {8, 8, 2, 9},
     {8, 8, 8, 8}
 };
+
+//token element helper functions
+
+typedef struct {
+    int len;
+    char buf[MAX_TOKEN_SIZE +1];
+    int num;
+} tokenElement_t;
 
 tokenElement_t tokenState = {
     0, {0}, 0
@@ -63,6 +76,8 @@ void tokenAddNum(char c){
     tokenAddChar(c);
 };
 
+
+//command buf element and helper functions
 typedef struct {
     unsigned char buf[30];
     char count;
@@ -75,15 +90,21 @@ commandBuf_t cmdBuf = {
 void addCmdBuf(unsigned char c){
     cmdBuf.buf[cmdBuf.count] = c;
     cmdBuf.count++;
+    if (cmdBuf.count >= MAXCMDBUF){
+        Serial.println(F("Error, too many commands"));
+    }
 };
 
 void newCmdBuf(){
   int i = 0;
-  for (;i<30;i++){
+  for (;i<MAXCMDBUF;i++){
     cmdBuf.buf[i] = t_EOL;
   }
   cmdBuf.count = 0;
 };
+
+
+//lookup table structure, command element, lookup function
 
 typedef struct {
     unsigned char key[2];
@@ -205,7 +226,7 @@ unsigned char* parseInput(char* s){
         previousstate = currentstate;
     };
 
-    //Process leftover, need updating
+    //Process leftover
     if (tokenState.len != 0){
       if (previousstate == 2){
         addCmdBuf(t_WORD);
