@@ -119,8 +119,8 @@ void processCmd(unsigned char* cmdbuf){
     unsigned char cmd, arg1, arg2;
     while ((cmd = *p++) != t_EOL){
         char buf[30];
-        snprintf(buf, 30, "Process Command[%i]", cmd);
-        Serial.println(buf);
+        // snprintf(buf, 30, "Process Command[%i]", cmd);
+        // Serial.println(buf);
         switch (cmd) {
         case t_VERSION:
             Serial.println("Program Version 1.0");
