@@ -4,7 +4,6 @@ typedef unsigned char uchar_t;
 #define BUFFSIZE 100
 int echomode = 1;
 uchar_t testbuf[BUFFSIZE+1];
-uchar_t readbuf[BUFFSIZE+1];
 uchar_t buffer_size = 0;
 
 /*************************************************
