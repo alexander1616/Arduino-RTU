@@ -41,7 +41,7 @@ action = 8 (error, bad token)
 action = 9 (got token)
 */
 char actionMap[4][4] = {
-    {8, 1, 2, 8},
+    {8, 1, 2, 0},
     {8, 1, 1, 9},
     {8, 8, 2, 9},
     {8, 8, 8, 8}
@@ -221,6 +221,7 @@ unsigned char* parseInput(char* s){
             currentstate = 0;
             break;
         default:
+            currentstate = 0;
             break;
         };
         previousstate = currentstate;
