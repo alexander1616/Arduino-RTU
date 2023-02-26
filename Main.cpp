@@ -3,12 +3,16 @@
 #include "readLine.h"
 #include "parseInput.h"
 #include "processCmd.h"
+#include "a_rtc.h"
+#include "a_dht.h"
 
 void setup() {
-    Serial.begin(19200);
+    Serial.begin(115200);
     pinMode(t_D13, OUTPUT);
     pinMode(t_RED, OUTPUT);
     pinMode(t_GREEN, OUTPUT);
+    rtcSetup();
+    dhtDataInit();
 }
 
 void loop() {
@@ -22,4 +26,5 @@ void loop() {
     }
   }
   blinkLoop();
+  dhtLoop();
 }

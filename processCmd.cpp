@@ -1,5 +1,7 @@
 #include <Arduino.h>
 #include "projectDef.h"
+#include "a_rtc.h"
+#include "a_dht.h"
 
 /*************************************************
 *             Process Command                    *
@@ -128,11 +130,18 @@ void ledProcess(unsigned char arg1){
   }
 }
 
+unsigned int extractNum(unsigned char* cp){
+    unsigned int value;
+    value = (cp[0]<<8)|cp[1];
+    return value;
+}
+
 void processCmd(unsigned char* cmdbuf){
+    char buf[50];
     unsigned char* p = cmdbuf;
     unsigned char cmd, arg1, arg2;
     while ((cmd = *p++) != t_EOL){
-        char buf[30];
+        // char buf[30];
         // snprintf(buf, 30, "Process Command[%i]", cmd);
         // Serial.println(buf);
         switch (cmd) {
@@ -140,6 +149,7 @@ void processCmd(unsigned char* cmdbuf){
             Serial.println(F("Program Version 1.0"));
             break;
         case t_HELP:
+#if 0
             Serial.println(F("************************************************************"));
             Serial.println(F("* Supported CMDs [cmd][arg1][arg2] - command sequence      *"));
             Serial.println(F("************************************************************"));
@@ -161,6 +171,9 @@ void processCmd(unsigned char* cmdbuf){
             Serial.println(F("* VERSION [cmd]             - current program version      *"));
             Serial.println(F("* HELP    [cmd]             - displays help menu           *"));
             Serial.println(F("************************************************************"));
+#else
+            Serial.println(F("Help function"));
+#endif
             break;
         case t_D13:
             arg1 = *p++;
@@ -199,16 +212,56 @@ void processCmd(unsigned char* cmdbuf){
             }
             ledProcess(arg1);
             break;
+        case t_CLOCK:
+            rtcShowTime();
+            break;
+        case t_TEMP:
+            arg1 = *p++;
+            if (arg1 == t_HISTORY){
+                dhtShowHistory();
+            } else if (arg1 == t_ON){
+                dhtSetShowTemp(1);    
+            } else if (arg1 == t_OFF){
+                dhtSetShowTemp(0);
+            } else {
+                Serial.println(F("Bad TEMP Params"));
+            }
+            break;
+
+        case t_ADD:
+            arg1 = *p++;
+            unsigned int value1, value2, result;
+            if (arg1 == t_WORD){
+                value1 = extractNum(p);
+                p+=2;
+            } else {
+                Serial.println(F("Bad ADD"));
+                return;
+            }
+            arg2 = *p++;
+            if (arg2 == t_WORD){
+                value2 = extractNum(p);
+                p+=2;
+            } else {
+                Serial.println(F("Bad ADD"));
+                return;
+            }
+            result = value1 + value2;
+            snprintf(buf, sizeof(buf), "%u + %u = %u", value1, value2, result);
+            Serial.println(buf);
+            break;
         case t_SET:
-            int highb;
-            int lowb;
+            //int highb;
+            //int lowb;
             arg1 = *p++;
             if (arg1 == t_BLINK){
                 arg2 = *p++;
                 if (arg2 == t_WORD){
-                    highb = *p++;
-                    lowb = *p++;
-                    prjDefault.timedelay = (highb<<8)|(lowb);
+                    //highb = *p++;
+                    //lowb = *p++;
+                    //prjDefault.timedelay = (highb<<8)|(lowb);
+                    prjDefault.timedelay = extractNum(p);
+                    p+=2;
                     if (prjDefault.timedelay > 10000){
                         Serial.println(F("Error, delay cannot exceed 10000ms"));
                         return;
@@ -219,6 +272,9 @@ void processCmd(unsigned char* cmdbuf){
                     Serial.println(F("Bad parameter for interval"));
                     return;
                 }
+            } else if (arg1 == t_CLOCK){ //define tclock
+                rtcPromptSetTime();
+                return;
             } else {
                 Serial.println(F("Bad parameter for SET"));
                 return;
@@ -227,8 +283,7 @@ void processCmd(unsigned char* cmdbuf){
         case t_STATUS:
             arg1 = *p++;
             if (arg1 == t_LEDS){
-                char buf[50];
-                snprintf(buf, 50, "d13[%d], Red[%d], Green[%d]",
+                snprintf(buf, sizeof(buf), "d13[%d], Red[%d], Green[%d]",
                     digitalRead(t_D13), digitalRead(t_RED), digitalRead(t_GREEN));
                 Serial.println(buf);
             } else {

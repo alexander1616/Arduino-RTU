@@ -125,7 +125,11 @@ cmdElement_t lookUpTable[] = {
     {'s', 't', 6, t_STATUS},
     {'h', 'e', 4, t_HELP},
     {'v', 'e', 7, t_VERSION},
-    {'r', 'g', 2, t_RG}
+    {'r', 'g', 2, t_RG},
+    {'c', 'l', 5, t_CLOCK},
+    {'a', 'd', 3, t_ADD},
+    {'t', 'e', 4, t_TEMP},
+    {'h', 'i', 7, t_HISTORY}
 };
 
 #define numCommand sizeof(lookUpTable)/sizeof(lookUpTable[0])
@@ -172,7 +176,7 @@ void bsProcess(char* s){
 
 unsigned char* parseInput(char* s){
     char buf[40];
-    bsProcess(s);
+    //bsProcess(s);
     newCmdBuf();
     newToken();
     int currentstate = 0;
