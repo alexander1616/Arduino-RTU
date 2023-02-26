@@ -2,6 +2,7 @@
 #include "projectDef.h"
 #include "a_rtc.h"
 #include "a_dht.h"
+#define P_VERSION "Program Version 2.0"
 
 /*************************************************
 *             Process Command                    *
@@ -146,7 +147,7 @@ void processCmd(unsigned char* cmdbuf){
         // Serial.println(buf);
         switch (cmd) {
         case t_VERSION:
-            Serial.println(F("Program Version 1.0"));
+            Serial.println(F(P_VERSION));
             break;
         case t_HELP:
 #if 0
