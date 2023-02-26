@@ -3,6 +3,8 @@
 #include <EEPROM.h>
 #include "projectDef.h"
 #include "a_rtc.h"
+#define TEMP_INTERVAL 5000
+#define TEMP_STORE_INTERVAL 900000
 
 extern DS3231_Simple Clock;
 static char showTemp = 0;
@@ -110,7 +112,10 @@ typedef struct {
     unsigned int eepromlength;
 } tempTimeElement_t;
 
-static tempTimeElement_t tempTimeElement = {0, 0, 5000, 10000, EEPROM.length()};
+static tempTimeElement_t tempTimeElement = {0, 0, 
+                                                TEMP_INTERVAL, 
+                                                TEMP_STORE_INTERVAL, 
+                                                EEPROM.length()};
 
 SimpleDHT22 dht22(t_DHT);
 
