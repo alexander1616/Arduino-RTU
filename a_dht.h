@@ -6,5 +6,9 @@ extern void dhtShowTemp();
 extern void dhtLoop();
 extern void dhtSetShowTemp(int);
 extern void dhtDataInit();
+extern void dhtShowEEProm();
+extern void dhtEEPromInit();
+extern void dhtShowMaxTemp();
+extern void dhtShowMinTemp();
 
 #endif

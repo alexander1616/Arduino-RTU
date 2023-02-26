@@ -7,38 +7,101 @@
 extern DS3231_Simple Clock;
 static char showTemp = 0;
 
-float celToFahr(float cel){
+void dhtEEPromInit();
+
+static float celToFahr(float cel){
     float fahr;
     fahr = (cel*(9/5)) + 32;
     return fahr;
 }
 
+//EEProm Header
 typedef struct {
     unsigned int d_iterator;
     unsigned int d_count;
     char eleflag;
 } dataInitElement_t;
 
-dataInitElement_t dataInitElement;
+//EEProm Record
+typedef struct {
+    float temperature;
+    float humidity;
+    DateTime datetime;
+} tempHumidElement_t;
+
+static dataInitElement_t dataInitElement;
+static unsigned char dht_dataFlag = 0;
+static tempHumidElement_t tempHumidElement = {0.0, 0.0, {0}};
+
+inline int idx2adr(int idx) {
+  int offset = 4+sizeof(dataInitElement);
+  int ssize = sizeof(tempHumidElement);
+  return offset + (idx * ssize);
+}
+
+static unsigned char checkMagic() {
+  if ((EEPROM[0] == 'a') && (EEPROM[1] == 'l') && (EEPROM[2] == 'e') && (EEPROM[3] == 'x')) {
+    return 0;  
+  } else {
+    return -1;
+  }
+}
+
+static void dhtPrintInitElementHdr(dataInitElement_t & hdr) {
+    char buf[50];
+    snprintf(buf, sizeof(buf), " Hdr adr %u count %u eleflag %u",
+             hdr.d_iterator,hdr.d_count, hdr.eleflag);
+    Serial.println(buf);
+}
+
+void dhtShowEEProm() {
+  int   i;
+  /* print magic */
+  for (i = 0; i < 4; i++) {
+    Serial.print((char)EEPROM[i]);
+  }
+  tempHumidElement_t rec;
+
+  /* print hdr */
+  dataInitElement_t hdr;
+  EEPROM.get(4, hdr);
+  dhtPrintInitElementHdr(hdr);
+
+#if 0
+  /* print first rec */
+  int adr = idx2adr(0);
+  EEPROM.get(adr, rec);
+  snprintf(buf, sizeof(buf), "Record [0] adr %d ", adr);
+  Serial.println(buf);
+  dhtPrintTemp(&rec);
+#endif
+}
+
+void dhtEEPromInit(){
+    EEPROM[0] = 'a';
+    EEPROM[1] = 'l';
+    EEPROM[2] = 'e';
+    EEPROM[3] = 'x';
+    dataInitElement.d_count = 0;
+    dataInitElement.d_iterator = idx2adr(0);
+    dataInitElement.eleflag = 0;
+    EEPROM.put(4, dataInitElement);
+    dhtShowEEProm();
+}
 
 void dhtDataInit(){
-    char alexflag[4];
-    EEPROM.get(0, alexflag);
-    if ((alexflag[0] != 'a')||
-            (alexflag[1] != 'l')||
-            (alexflag[2] != 'e')||
-            (alexflag[3] != 'x')){
-        EEPROM.write(0, 'a');
-        EEPROM.write(1, 'l');
-        EEPROM.write(2, 'e');
-        EEPROM.write(3, 'x');
-        dataInitElement = {4 + sizeof(dataInitElement), 0, 0};
-        EEPROM.put(4, &dataInitElement);
+    unsigned char magicReturn;
+    magicReturn = checkMagic();
+    //dhtShowEEProm();
+    if (magicReturn){
+        dhtEEPromInit();
     } else {
         EEPROM.get(4, dataInitElement);
+        dhtShowEEProm();
     }
 }
 
+//Internal Data for Delays
 typedef struct {
     unsigned long prevTimeRead;     //previous time last read
     unsigned long prevTimeStore;    //previous time last store
@@ -48,15 +111,6 @@ typedef struct {
 } tempTimeElement_t;
 
 static tempTimeElement_t tempTimeElement = {0, 0, 5000, 10000, EEPROM.length()};
-
-typedef struct {
-    float temperature;
-    float humidity;
-    DateTime datetime;
-} tempHumidElement_t;
-
-static unsigned char dht_dataFlag = 0;
-static tempHumidElement_t tempHumidElement = {0.0, 0.0, {0}};
 
 SimpleDHT22 dht22(t_DHT);
 
@@ -97,21 +151,21 @@ void dhtShowTemp(){
 void dhtShowHistory(){
     if (dht_dataFlag){
         if (!dataInitElement.eleflag){
-            for (int i = 4 + sizeof(dataInitElement); 
-                    i<(dataInitElement.d_count*sizeof(tempHumidElement)+4+sizeof(dataInitElement)); 
+            for (int i = idx2adr(0); 
+                    i<idx2adr(dataInitElement.d_count); 
                     i+=sizeof(tempHumidElement)){
                 EEPROM.get(i, tempHumidElement);
                 dhtPrintTemp(&tempHumidElement);
             }
         } else {
             for (int i = dataInitElement.d_iterator; 
-                    i<(dataInitElement.d_count*sizeof(tempHumidElement)+4+sizeof(dataInitElement)); 
+                    i<idx2adr(dataInitElement.d_count); 
                     i+=sizeof(tempHumidElement)){
                 EEPROM.get(i, tempHumidElement);
                 dhtPrintTemp(&tempHumidElement);
             }
-            for (int i = 4+sizeof(dataInitElement); 
-                    i<dataInitElement.d_iterator+4+sizeof(dataInitElement);
+            for (int i = idx2adr(0); 
+                    i<dataInitElement.d_iterator;
                     i+=sizeof(tempHumidElement)){
                 EEPROM.get(i, tempHumidElement);
                 dhtPrintTemp(&tempHumidElement);
@@ -136,19 +190,59 @@ void dhtLoop(){
         };
     }
     if (timeDiffStore >= tempTimeElement.timeDelayStore){
-        Serial.println("Storing");
-        //put code here for EEPROM
+        //Serial.println("Storing");
         if (dataInitElement.d_iterator + sizeof(tempHumidElement)> 
                 tempTimeElement.eepromlength){
-            dataInitElement.d_iterator = 4 + sizeof(dataInitElement);
+            dataInitElement.d_iterator = idx2adr(0);
             dataInitElement.eleflag = 1;
         }
-        EEPROM.put(dataInitElement.d_iterator, &tempHumidElement);
+        EEPROM.put(dataInitElement.d_iterator, tempHumidElement);
         dataInitElement.d_iterator += sizeof(tempHumidElement);
         tempTimeElement.prevTimeStore = currentTime;
         if (!dataInitElement.eleflag){
             dataInitElement.d_count++;
         }
-        EEPROM.put(4, &dataInitElement);
+        EEPROM.put(4, dataInitElement);
+        //dhtShowEEProm();
     }
+}
+
+void dhtShowMaxTemp(){
+    if (!dht_dataFlag){
+        return;
+    }
+    tempHumidElement_t compareElement;
+    tempHumidElement_t storeElement;
+    storeElement = tempHumidElement;
+    for (int i=idx2adr(0); 
+            i<idx2adr(dataInitElement.d_count); 
+            i+=sizeof(tempHumidElement)){
+        EEPROM.get(i, compareElement);
+        if (compareElement.temperature > storeElement.temperature){
+            storeElement.datetime = compareElement.datetime;
+            storeElement.humidity = compareElement.humidity;
+            storeElement.temperature = compareElement.temperature;
+        }
+    }
+    dhtPrintTemp(&storeElement);
+}
+
+void dhtShowMinTemp(){
+    if (!dht_dataFlag){
+        return;
+    }
+    tempHumidElement_t compareElement;
+    tempHumidElement_t storeElement;
+    storeElement = tempHumidElement;
+    for (int i=idx2adr(0); 
+            i<idx2adr(dataInitElement.d_count); 
+            i+=sizeof(tempHumidElement)){
+        EEPROM.get(i, compareElement);
+        if (compareElement.temperature < storeElement.temperature){
+            storeElement.datetime = compareElement.datetime;
+            storeElement.humidity = compareElement.humidity;
+            storeElement.temperature = compareElement.temperature;
+        }
+    }
+    dhtPrintTemp(&storeElement);
 }

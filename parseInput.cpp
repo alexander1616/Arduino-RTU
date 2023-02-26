@@ -129,7 +129,10 @@ cmdElement_t lookUpTable[] = {
     {'c', 'l', 5, t_CLOCK},
     {'a', 'd', 3, t_ADD},
     {'t', 'e', 4, t_TEMP},
-    {'h', 'i', 7, t_HISTORY}
+    {'h', 'i', 7, t_HISTORY},
+    {'e', 'e', 6, t_EEPROM},
+    {'m', 'a', 3, t_MAX},
+    {'m', 'i', 3, t_MIN}
 };
 
 #define numCommand sizeof(lookUpTable)/sizeof(lookUpTable[0])

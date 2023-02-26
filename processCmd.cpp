@@ -223,11 +223,14 @@ void processCmd(unsigned char* cmdbuf){
                 dhtSetShowTemp(1);    
             } else if (arg1 == t_OFF){
                 dhtSetShowTemp(0);
+            } else if (arg1 == t_MAX){
+                dhtShowMaxTemp();
+            } else if (arg1 == t_MIN){
+                dhtShowMinTemp();
             } else {
                 Serial.println(F("Bad TEMP Params"));
             }
             break;
-
         case t_ADD:
             arg1 = *p++;
             unsigned int value1, value2, result;
@@ -275,6 +278,9 @@ void processCmd(unsigned char* cmdbuf){
             } else if (arg1 == t_CLOCK){ //define tclock
                 rtcPromptSetTime();
                 return;
+            } else if (arg1 == t_EEPROM){
+                dhtEEPromInit();
+                return;
             } else {
                 Serial.println(F("Bad parameter for SET"));
                 return;
@@ -286,6 +292,8 @@ void processCmd(unsigned char* cmdbuf){
                 snprintf(buf, sizeof(buf), "d13[%d], Red[%d], Green[%d]",
                     digitalRead(t_D13), digitalRead(t_RED), digitalRead(t_GREEN));
                 Serial.println(buf);
+            } else if (arg1 == t_EEPROM){
+                dhtShowEEProm();
             } else {
                 Serial.println(F("Bad parameter for status"));
                 return;
