@@ -96,7 +96,27 @@ void dhtShowTemp(){
 
 void dhtShowHistory(){
     if (dht_dataFlag){
-        Serial.println("I'm going to write this");
+        if (!dataInitElement.eleflag){
+            for (int i = 4 + sizeof(dataInitElement); 
+                    i<(dataInitElement.d_count*sizeof(tempHumidElement)+4+sizeof(dataInitElement)); 
+                    i+=sizeof(tempHumidElement)){
+                EEPROM.get(i, tempHumidElement);
+                dhtPrintTemp(&tempHumidElement);
+            }
+        } else {
+            for (int i = dataInitElement.d_iterator; 
+                    i<(dataInitElement.d_count*sizeof(tempHumidElement)+4+sizeof(dataInitElement)); 
+                    i+=sizeof(tempHumidElement)){
+                EEPROM.get(i, tempHumidElement);
+                dhtPrintTemp(&tempHumidElement);
+            }
+            for (int i = 4+sizeof(dataInitElement); 
+                    i<dataInitElement.d_iterator+4+sizeof(dataInitElement);
+                    i+=sizeof(tempHumidElement)){
+                EEPROM.get(i, tempHumidElement);
+                dhtPrintTemp(&tempHumidElement);
+            }
+        }
     }
 }
 
@@ -118,7 +138,7 @@ void dhtLoop(){
     if (timeDiffStore >= tempTimeElement.timeDelayStore){
         Serial.println("Storing");
         //put code here for EEPROM
-        if (dataInitElement.d_iterator + sizeof(tempHumidElement) > 
+        if (dataInitElement.d_iterator + sizeof(tempHumidElement)> 
                 tempTimeElement.eepromlength){
             dataInitElement.d_iterator = 4 + sizeof(dataInitElement);
             dataInitElement.eleflag = 1;
