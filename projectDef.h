@@ -7,10 +7,14 @@
 #define t_DHT       2
 #define t_RED       5
 #define t_GREEN     6
+#define t_RGB_RED   9
+#define t_RGB_GREEN 10
+#define t_RGB_BLUE  11
 #define t_D13       13
 
 
 #define t_UNKNOWN   40
+#define t_RGB       51
 #define t_SET       52
 #define t_BLINK     53
 #define t_RG        54
@@ -23,6 +27,9 @@
 #define t_ADD       61
 #define t_TEMP      62
 #define t_HISTORY   63
+#define t_EEPROM    64
+#define t_MAX       65
+#define t_MIN       66
 
 #define t_VERSION   254
 #define t_EOL       255

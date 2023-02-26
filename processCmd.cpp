@@ -19,13 +19,20 @@ typedef struct {
   int d13BlinkSwitch;
   int ledBlinkSwitch;
   int rgblink;
+  int rgbBlinkSwitch;
+  int rgbBlink;
   unsigned long timedelay;
   unsigned long timestart;
   unsigned long timestart2;
   unsigned long timestart3;
+  unsigned long timestart4;
+  unsigned char rgbRed; //0-255
+  unsigned char rgbGreen; //0-255
+  unsigned char rgbBlue; //0-255
+  unsigned char rgbKey;
 } prjDefault_t;
 
-prjDefault_t prjDefault = {LOW, LOW, 0, 0, 0, 0, 500, 0, 0, 0};
+prjDefault_t prjDefault = {LOW, LOW, 0, 0, 0, 0, 0, 0, 500, 0, 0, 0, 0, 66, 227, 245, 0};
 
 //blink functions for d13 and led
 void d13blink(){
@@ -53,6 +60,36 @@ void ledBlink(){
             digitalRead(t_GREEN)?(digitalWrite(t_GREEN, LOW)):(digitalWrite(t_GREEN, HIGH));
         }
         prjDefault.timestart2 = timecurrent;
+    }
+}
+
+void rgbSetValue(unsigned int val1, unsigned int val2, unsigned int val3){
+    prjDefault.rgbRed = (unsigned char)val1;
+    prjDefault.rgbGreen = (unsigned char)val2;
+    prjDefault.rgbBlue = (unsigned char)val3;
+    analogWrite(t_RGB_RED, prjDefault.rgbRed);
+    analogWrite(t_RGB_GREEN, prjDefault.rgbGreen);
+    analogWrite(t_RGB_BLUE, prjDefault.rgbBlue);
+}
+
+void rgbBlink(){
+    unsigned long timecurrent;
+    timecurrent = millis();
+    unsigned long tdelay;
+    tdelay = timecurrent - prjDefault.timestart4;
+    if (tdelay >= prjDefault.timedelay){
+        if (!prjDefault.rgbKey){
+            analogWrite(t_RGB_RED, prjDefault.rgbRed);
+            analogWrite(t_RGB_GREEN, prjDefault.rgbGreen);
+            analogWrite(t_RGB_BLUE, prjDefault.rgbBlue);
+            prjDefault.rgbKey = 1;
+        } else {
+            analogWrite(t_RGB_RED, 0);
+            analogWrite(t_RGB_GREEN, 0);
+            analogWrite(t_RGB_BLUE, 0);
+            prjDefault.rgbKey = 0;
+        }
+        prjDefault.timestart4 = timecurrent;
     }
 }
 
@@ -84,9 +121,12 @@ void blinkLoop(){
         ledBlink();
     }
   }
+  if (prjDefault.rgbBlinkSwitch){
+    rgbBlink();
+  }
 };
 
-//processing d13 pin and led pins
+//processing d13 pin, led pins, and rgb pins
 void d13Process(unsigned char arg){
   switch (arg){
   case t_ON:
@@ -130,6 +170,26 @@ void ledProcess(unsigned char arg1){
     break;
   }
 }
+
+void rgbProcess(unsigned char arg){
+  switch (arg){
+  case t_ON:
+    prjDefault.rgbBlinkSwitch = 0;
+    analogWrite(t_RGB_RED, prjDefault.rgbRed);
+    analogWrite(t_RGB_GREEN, prjDefault.rgbGreen);
+    analogWrite(t_RGB_BLUE, prjDefault.rgbBlue);
+    break;
+  case t_OFF:
+    prjDefault.rgbBlinkSwitch = 0;
+    analogWrite(t_RGB_RED, 0);
+    analogWrite(t_RGB_GREEN, 0);
+    analogWrite(t_RGB_BLUE, 0);
+    break;
+  case t_BLINK:
+    prjDefault.rgbBlinkSwitch?(prjDefault.rgbBlinkSwitch = 0):(prjDefault.rgbBlinkSwitch = 1);
+    break;
+  }
+};
 
 unsigned int extractNum(unsigned char* cp){
     unsigned int value;
@@ -212,6 +272,43 @@ void processCmd(unsigned char* cmdbuf){
                 return;
             }
             ledProcess(arg1);
+            break;
+        case t_RGB:
+            arg1 = *p++;
+            switch (arg1) {
+            case t_ON:
+                break;
+            case t_OFF:
+                break;
+            case t_BLINK:
+                break;
+            case t_WORD:
+                unsigned int value1, value2, value3;
+                value1 = extractNum(p);
+                p+=2;
+                if (*p == t_WORD){
+                    p++;
+                    value2 = extractNum(p);
+                    p+=2;   
+                } else {
+                    Serial.println(F("Bad parameter for RGB"));
+                    return;
+                }
+                if (*p == t_WORD){
+                    p++;
+                    value3 = extractNum(p);
+                    p+=2;   
+                } else {
+                    Serial.println(F("Bad parameter for RGB"));
+                    return;
+                }
+                rgbSetValue(value1, value2, value3);
+                break;
+            default:
+                Serial.println(F("Bad parameter for RGB"));
+                return;
+            }
+            rgbProcess(arg1);
             break;
         case t_CLOCK:
             rtcShowTime();

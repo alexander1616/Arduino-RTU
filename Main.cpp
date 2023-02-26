@@ -11,6 +11,10 @@ void setup() {
     pinMode(t_D13, OUTPUT);
     pinMode(t_RED, OUTPUT);
     pinMode(t_GREEN, OUTPUT);
+    pinMode(t_RGB_RED, OUTPUT);
+    pinMode(t_RGB_GREEN, OUTPUT);
+    pinMode(t_RGB_BLUE, OUTPUT);
+
     rtcSetup();
     dhtDataInit();
 }
