@@ -239,7 +239,7 @@ void ledProcess(unsigned char arg1){
   case t_RED:
     prjDefault.ledBlinkSwitch = 0;
     prjDefault.rgblink = 0;
-    //prjDefault.ledByteSwitch = 0;
+    prjDefault.ledByteSwitch = 0;
     digitalWrite(t_GREEN, prjDefault.green = LOW);
     digitalWrite(t_RED, prjDefault.red = HIGH);
     prjDefault.colorstore = 0;
@@ -247,13 +247,13 @@ void ledProcess(unsigned char arg1){
   case t_GREEN:
     prjDefault.ledBlinkSwitch = 0;
     prjDefault.rgblink = 0;
-    //prjDefault.ledByteSwitch = 0;
+    prjDefault.ledByteSwitch = 0;
     digitalWrite(t_RED, prjDefault.red = LOW);
     digitalWrite(t_GREEN, prjDefault.green = HIGH);
     prjDefault.colorstore = 1;
     break;
   case t_BLINK:
-    //prjDefault.ledByteSwitch = 0;
+    prjDefault.ledByteSwitch = 0;
     prjDefault.ledBlinkSwitch = 1;
     break;
   case t_OFF:
@@ -458,6 +458,8 @@ void processCmd(unsigned char* cmdbuf){
                 dhtShowMaxTemp();
             } else if (arg1 == t_MIN){
                 dhtShowMinTemp();
+            } else if (arg1 == t_SHOW){
+                dhtShowTemp();
             } else {
                 Serial.println(F("Bad TEMP Params"));
             }

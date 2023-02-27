@@ -30,6 +30,8 @@
 #define t_EEPROM    64
 #define t_MAX       65
 #define t_MIN       66
+#define t_NEG       67
+#define t_SHOW      68
 
 #define t_VERSION   254
 #define t_EOL       255
