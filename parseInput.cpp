@@ -17,7 +17,7 @@
 char stateTable[256] = {
     3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
     3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 3, 3,
     2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3,
     3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 3, 3, 3,
@@ -40,11 +40,12 @@ action = 2 (only digits -> append, set num)
 action = 8 (error, bad token)
 action = 9 (got token)
 */
-char actionMap[4][4] = {
-    {8, 1, 2, 0},
-    {8, 1, 1, 9},
-    {8, 8, 2, 9},
-    {8, 8, 8, 8}
+char actionMap[5][5] = {
+    {8, 1, 2, 0, 7},
+    {8, 1, 1, 9, 8},
+    {8, 8, 2, 9, 8},
+    {8, 8, 8, 8, 8},
+    {8, 8, 2, 8, 8}
 };
 
 //token element helper functions
@@ -201,6 +202,9 @@ unsigned char* parseInput(char* s){
             break;
         case 2:
             tokenAddNum(cur);
+            break;
+        case 7:
+            addCmdBuf(t_NEG);
             break;
         case 8:
             // Serial.println("Bad Input");

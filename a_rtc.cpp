@@ -1,6 +1,13 @@
 #include <Arduino.h>
 #include <DS3231_Simple.h>
 
+/*************************************************
+*             Real Time Clock                    *
+*                                                *
+*    Functions to view and set time              *
+*    Interfaces with records to store in EEPROM  *
+*************************************************/
+
 DS3231_Simple Clock;
 
 void rtcSetTime(const DateTime & val){

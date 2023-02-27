@@ -286,8 +286,8 @@ void rgbProcess(unsigned char arg){
   }
 };
 
-unsigned int extractNum(unsigned char* cp){
-    unsigned int value;
+int extractNum(unsigned char* cp){
+    int value;
     value = (cp[0]<<8)|cp[1];
     return value;
 }
@@ -351,7 +351,7 @@ void processCmd(unsigned char* cmdbuf){
             Serial.println(F("*   [arg1] LEDS, EEPROM, RGB      *"));
             Serial.println(F("* [cmd] CLOCK                     *"));
             Serial.println(F("* [cmd] VERSION                   *"));
-            Serial.println(F("* [cmd] HElP                      *"));
+            Serial.println(F("* [cmd] HELP                      *"));
             Serial.println(F("***********************************"));
 #endif
             break;
@@ -430,7 +430,12 @@ void processCmd(unsigned char* cmdbuf){
                     Serial.println(F("Bad parameter for RGB"));
                     return;
                 }
-                rgbSetValue(value1, value2, value3);
+                if ((value1 > 255) || (value2 > 255) || (value3 > 255)){
+                    Serial.println(F("RGB values must be between 0-255"));
+                    return;
+                } else {
+                    rgbSetValue(value1, value2, value3);
+                }
                 break;
             default:
                 Serial.println(F("Bad parameter for RGB"));
@@ -459,10 +464,16 @@ void processCmd(unsigned char* cmdbuf){
             break;
         case t_ADD:
             arg1 = *p++;
-            unsigned int value1, value2, result;
+            int value1, value2, result;
             if (arg1 == t_WORD){
                 value1 = extractNum(p);
                 p+=2;
+            } else if (arg1 == t_NEG){
+                arg1 = *p++;
+                if (arg1 == t_WORD){
+                    value1 = -(extractNum(p));
+                    p+=2;
+                }
             } else {
                 Serial.println(F("Bad ADD"));
                 return;
@@ -471,12 +482,18 @@ void processCmd(unsigned char* cmdbuf){
             if (arg2 == t_WORD){
                 value2 = extractNum(p);
                 p+=2;
+            } else if (arg2 == t_NEG){
+                arg2 = *p++;
+                if (arg2 == t_WORD){
+                    value2 = -(extractNum(p));
+                    p+=2;
+                }
             } else {
                 Serial.println(F("Bad ADD"));
                 return;
             }
             result = value1 + value2;
-            snprintf(buf, sizeof(buf), "%u + %u = %u", value1, value2, result);
+            snprintf(buf, sizeof(buf), "%d + %d = %d", value1, value2, result);
             Serial.println(buf);
             break;
         case t_SET:

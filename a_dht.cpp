@@ -9,6 +9,13 @@
 extern DS3231_Simple Clock;
 static char showTemp = 0;
 
+/*************************************************
+*      Humidity and Temperature Reader           *
+*                                                *
+*    Reads ambient temperature and humidity      *
+*    Stores data as a "record" in EEPROM         *
+*************************************************/
+
 void dhtEEPromInit();
 
 static float celToFahr(float cel){
