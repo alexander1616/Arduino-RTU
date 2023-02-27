@@ -30,9 +30,14 @@ typedef struct {
   unsigned char rgbGreen; //0-255
   unsigned char rgbBlue; //0-255
   unsigned char rgbKey;
+  unsigned long timestart5;
+  unsigned int ledByteVal; //byte value used for rotation
+  unsigned char ledByteSwitch; //flag control for byte blink
 } prjDefault_t;
 
-prjDefault_t prjDefault = {LOW, LOW, 0, 0, 0, 0, 0, 0, 500, 0, 0, 0, 0, 66, 227, 245, 0};
+prjDefault_t prjDefault = {LOW, LOW, 0, 0, 0, 0, 0, 0, 500, 
+                            0, 0, 0, 0, 66, 227, 245, 0, 
+                            0, 0, 0};
 
 //blink functions for d13 and led
 void d13blink(){
@@ -110,21 +115,107 @@ void rgBlink(){
     }
 }
 
-void blinkLoop(){
-  if (prjDefault.d13BlinkSwitch){
-    d13blink();
-  }
-  if (prjDefault.ledBlinkSwitch){
-    if (prjDefault.rgblink){
-        rgBlink();
-    } else {
-        ledBlink();
+void twoBitState(unsigned int xval){  
+    switch (xval){
+    case 0:
+        digitalWrite(5, LOW);
+        digitalWrite(6, LOW);
+        break;
+    case 1:
+        digitalWrite(5, HIGH);
+        digitalWrite(6, LOW);
+        break;
+    case 2:
+        digitalWrite(6, HIGH);
+        digitalWrite(5, LOW);
+        break;
+    case 3:
+        digitalWrite(5, LOW);
+        digitalWrite(5, LOW);
+        break;
+    default:
+        break;
     }
-  }
-  if (prjDefault.rgbBlinkSwitch){
-    rgbBlink();
-  }
-};
+}
+
+static int bitSetLEDHelper_state = 0; //rotating from 0-3
+
+void bitSetLEDHelper(){
+    unsigned char xval;
+    switch (bitSetLEDHelper_state){
+    case 4:
+        xval = prjDefault.ledByteVal>>6&0x3;
+        twoBitState(xval);
+        bitSetLEDHelper_state++;
+        break;
+    case 5:
+        xval = prjDefault.ledByteVal>>4&0x3;
+        twoBitState(xval);
+        bitSetLEDHelper_state++;
+        break;
+    case 6:
+        xval = prjDefault.ledByteVal>>2&0x3;
+        twoBitState(xval);
+        bitSetLEDHelper_state++;
+        break;
+    case 7:
+        xval = prjDefault.ledByteVal&0x3;
+        twoBitState(xval);
+        bitSetLEDHelper_state = 0;
+        break;
+    case 3:
+        xval = prjDefault.ledByteVal>>8&0x3;
+        twoBitState(xval);
+        bitSetLEDHelper_state++;
+        break;
+    case 2:
+        xval = prjDefault.ledByteVal>>10&0x3;
+        twoBitState(xval);
+        bitSetLEDHelper_state++;
+        break;
+    case 1:
+        xval = prjDefault.ledByteVal>>12&0x3;
+        twoBitState(xval);
+        bitSetLEDHelper_state++;
+        break;
+    case 0:
+        xval = prjDefault.ledByteVal>>14&0x3;
+        twoBitState(xval);
+        bitSetLEDHelper_state++; 
+        break;
+    }
+}
+
+void bitSetLED(){
+    unsigned long timecurrent;
+    timecurrent = millis();
+    unsigned long tdelay;
+    tdelay = timecurrent - prjDefault.timestart5;
+    if (tdelay >= prjDefault.timedelay){   
+        bitSetLEDHelper();
+        prjDefault.timestart5 = timecurrent;
+    }
+}
+
+void blinkLoop(){
+    if (prjDefault.d13BlinkSwitch){
+        d13blink();
+    }
+    if (!prjDefault.ledByteSwitch){
+        if (prjDefault.ledBlinkSwitch){
+            if (prjDefault.rgblink){
+                rgBlink();
+            } else {
+                ledBlink();
+            }
+        }
+    } else {
+        bitSetLED();
+    }
+    if (prjDefault.rgbBlinkSwitch){
+        rgbBlink();
+    }
+}
 
 //processing d13 pin, led pins, and rgb pins
 void d13Process(unsigned char arg){
@@ -148,6 +239,7 @@ void ledProcess(unsigned char arg1){
   case t_RED:
     prjDefault.ledBlinkSwitch = 0;
     prjDefault.rgblink = 0;
+    //prjDefault.ledByteSwitch = 0;
     digitalWrite(t_GREEN, prjDefault.green = LOW);
     digitalWrite(t_RED, prjDefault.red = HIGH);
     prjDefault.colorstore = 0;
@@ -155,16 +247,19 @@ void ledProcess(unsigned char arg1){
   case t_GREEN:
     prjDefault.ledBlinkSwitch = 0;
     prjDefault.rgblink = 0;
+    //prjDefault.ledByteSwitch = 0;
     digitalWrite(t_RED, prjDefault.red = LOW);
     digitalWrite(t_GREEN, prjDefault.green = HIGH);
     prjDefault.colorstore = 1;
     break;
   case t_BLINK:
+    //prjDefault.ledByteSwitch = 0;
     prjDefault.ledBlinkSwitch = 1;
     break;
   case t_OFF:
     prjDefault.ledBlinkSwitch = 0;
     prjDefault.rgblink = 0;
+    prjDefault.ledByteSwitch = 0;
     digitalWrite(t_RED, prjDefault.red = LOW);
     digitalWrite(t_GREEN, prjDefault.green = LOW);
     break;
@@ -267,6 +362,15 @@ void processCmd(unsigned char* cmdbuf){
                     p++;
                 }
                 break;
+            case t_WORD:
+                unsigned int ledvalue;
+                ledvalue = extractNum(p);
+                p+=2;
+                prjDefault.ledByteVal = ledvalue; //0xff if mask for 4 state;
+                prjDefault.ledByteSwitch = 1;
+                Serial.print(F("LED "));
+                Serial.println(prjDefault.ledByteVal, BIN);
+                return;
             default:
                 Serial.println(F("Bad parameter for LED"));
                 return;
@@ -375,10 +479,10 @@ void processCmd(unsigned char* cmdbuf){
                 }
             } else if (arg1 == t_CLOCK){ //define tclock
                 rtcPromptSetTime();
-                return;
+                break;
             } else if (arg1 == t_EEPROM){
                 dhtEEPromInit();
-                return;
+                break;
             } else {
                 Serial.println(F("Bad parameter for SET"));
                 return;
@@ -392,6 +496,10 @@ void processCmd(unsigned char* cmdbuf){
                 Serial.println(buf);
             } else if (arg1 == t_EEPROM){
                 dhtShowEEProm();
+            } else if (arg1 == t_RGB){
+                snprintf(buf, sizeof(buf), "rgb %u %u %u", analogRead(t_RGB_RED),
+                            analogRead(t_RGB_GREEN), analogRead(t_RGB_BLUE));
+                Serial.println(buf);
             } else {
                 Serial.println(F("Bad parameter for status"));
                 return;

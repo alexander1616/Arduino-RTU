@@ -51,8 +51,8 @@ static unsigned char checkMagic() {
 
 static void dhtPrintInitElementHdr(dataInitElement_t & hdr) {
     char buf[50];
-    snprintf(buf, sizeof(buf), " Hdr adr %u count %u eleflag %u",
-             hdr.d_iterator,hdr.d_count, hdr.eleflag);
+    snprintf(buf, sizeof(buf), " Hdr adr %u count %u eleflag %u record size %u",
+             hdr.d_iterator,hdr.d_count, hdr.eleflag, sizeof(tempHumidElement_t));
     Serial.println(buf);
 }
 
@@ -62,12 +62,11 @@ void dhtShowEEProm() {
   for (i = 0; i < 4; i++) {
     Serial.print((char)EEPROM[i]);
   }
-  tempHumidElement_t rec;
-
   /* print hdr */
   dataInitElement_t hdr;
   EEPROM.get(4, hdr);
   dhtPrintInitElementHdr(hdr);
+
 
 #if 0
   /* print first rec */
