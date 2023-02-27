@@ -328,7 +328,31 @@ void processCmd(unsigned char* cmdbuf){
             Serial.println(F("* HELP    [cmd]             - displays help menu           *"));
             Serial.println(F("************************************************************"));
 #else
-            Serial.println(F("Help function"));
+            Serial.println(F("***********************************"));
+            Serial.println(F("* Supported CMD [cmd][arg1][arg2] *"));
+            Serial.println(F("***********************************"));
+            Serial.println(F("* [cmd] D13                       *"));
+            Serial.println(F("*   [arg1] ON, OFF, BLINK         *"));
+            Serial.println(F("* [cmd] LED                       *"));
+            Serial.println(F("*   [arg1] RED, GREEN, OFF, 'NUM' *"));
+            Serial.println(F("*   [arg1] BLINK (opt)[arg2] RG   *"));
+            Serial.println(F("* [cmd] RGB                       *"));
+            Serial.println(F("*   [arg1] ON, OFF, BLINK         *"));
+            Serial.println(F("*   [arg1] 'NUM1' 'NUM2' 'NUM3'   *"));
+            Serial.println(F("* [cmd] TEMP                      *"));
+            Serial.println(F("*   [arg1] HISTORY, ON, OFF       *"));
+            Serial.println(F("*   [arg1] MAX, MIN               *"));
+            Serial.println(F("* [cmd] SET                       *"));
+            Serial.println(F("*   [arg1] CLOCK, EEPROM          *"));
+            Serial.println(F("*   [arg1] BLINK [arg2] 'NUM'     *"));
+            Serial.println(F("* [cmd] ADD                       *"));
+            Serial.println(F("*   [arg1] 'NUM1' [arg2] 'NUM2'   *"));
+            Serial.println(F("* [cmd] STATUS                    *"));
+            Serial.println(F("*   [arg1] LEDS, EEPROM, RGB      *"));
+            Serial.println(F("* [cmd] CLOCK                     *"));
+            Serial.println(F("* [cmd] VERSION                   *"));
+            Serial.println(F("* [cmd] HElP                      *"));
+            Serial.println(F("***********************************"));
 #endif
             break;
         case t_D13:
