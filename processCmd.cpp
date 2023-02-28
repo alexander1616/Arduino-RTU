@@ -353,7 +353,7 @@ void processCmd(unsigned char* cmdbuf){
             Serial.println(F("*   [arg1] 'NUM1' 'NUM2' 'NUM3'   *"));
             Serial.println(F("* [cmd] TEMP                      *"));
             Serial.println(F("*   [arg1] HISTORY, ON, OFF       *"));
-            Serial.println(F("*   [arg1] MAX, MIN               *"));
+            Serial.println(F("*   [arg1] MAX, MIN, SHOW         *"));
             Serial.println(F("* [cmd] SET                       *"));
             Serial.println(F("*   [arg1] CLOCK, EEPROM          *"));
             Serial.println(F("*   [arg1] BLINK [arg2] 'NUM'     *"));
