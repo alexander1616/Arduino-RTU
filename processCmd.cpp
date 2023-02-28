@@ -508,12 +508,6 @@ void processCmd(unsigned char* cmdbuf){
                 return;
             }
             result = (long)value1 + (long)value2;
-            Serial.print(result);
-            Serial.print(" ");
-            Serial.print(sizeof(long));
-            Serial.print(" ");
-            Serial.print(sizeof(int));
-            Serial.println(" ");
             snprintf(buf, sizeof(buf), "%d + %d = %ld", value1, value2, result);
             Serial.println(buf);
             break;
