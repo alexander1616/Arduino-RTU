@@ -2,6 +2,7 @@
 #include "projectDef.h"
 #include "a_rtc.h"
 #include "a_dht.h"
+#include "a_fastLed.h"
 #define P_VERSION "Program Version 2.0"
 
 /*************************************************
@@ -33,11 +34,12 @@ typedef struct {
   unsigned long timestart5;
   unsigned int ledByteVal; //byte value used for rotation
   unsigned char ledByteSwitch; //flag control for byte blink
+  unsigned char rgbCheck;
 } prjDefault_t;
 
 prjDefault_t prjDefault = {LOW, LOW, 0, 0, 0, 0, 0, 0, 500, 
                             0, 0, 0, 0, 66, 227, 245, 0, 
-                            0, 0, 0};
+                            0, 0, 0, 0};
 
 //blink functions for d13 and led
 void d13blink(){
@@ -75,6 +77,8 @@ void rgbSetValue(unsigned int val1, unsigned int val2, unsigned int val3){
     analogWrite(t_RGB_RED, prjDefault.rgbRed);
     analogWrite(t_RGB_GREEN, prjDefault.rgbGreen);
     analogWrite(t_RGB_BLUE, prjDefault.rgbBlue);
+    a_fastLEDSetVal(prjDefault.rgbRed, prjDefault.rgbGreen, prjDefault.rgbBlue);
+    prjDefault.rgbCheck = 1;
 }
 
 void rgbBlink(){
@@ -87,12 +91,16 @@ void rgbBlink(){
             analogWrite(t_RGB_RED, prjDefault.rgbRed);
             analogWrite(t_RGB_GREEN, prjDefault.rgbGreen);
             analogWrite(t_RGB_BLUE, prjDefault.rgbBlue);
+            a_fastLEDSetVal(prjDefault.rgbRed, prjDefault.rgbGreen, prjDefault.rgbBlue);
             prjDefault.rgbKey = 1;
+            prjDefault.rgbCheck = 1;
         } else {
             analogWrite(t_RGB_RED, 0);
             analogWrite(t_RGB_GREEN, 0);
             analogWrite(t_RGB_BLUE, 0);
+            a_fastLEDSetVal(0, 0, 0);
             prjDefault.rgbKey = 0;
+            prjDefault.rgbCheck = 0;
         }
         prjDefault.timestart4 = timecurrent;
     }
@@ -273,12 +281,16 @@ void rgbProcess(unsigned char arg){
     analogWrite(t_RGB_RED, prjDefault.rgbRed);
     analogWrite(t_RGB_GREEN, prjDefault.rgbGreen);
     analogWrite(t_RGB_BLUE, prjDefault.rgbBlue);
+    a_fastLEDSetVal(prjDefault.rgbRed, prjDefault.rgbGreen, prjDefault.rgbBlue);
+    prjDefault.rgbCheck = 1;
     break;
   case t_OFF:
     prjDefault.rgbBlinkSwitch = 0;
     analogWrite(t_RGB_RED, 0);
     analogWrite(t_RGB_GREEN, 0);
     analogWrite(t_RGB_BLUE, 0);
+    a_fastLEDSetVal(0, 0, 0);
+    prjDefault.rgbCheck = 0;
     break;
   case t_BLINK:
     prjDefault.rgbBlinkSwitch?(prjDefault.rgbBlinkSwitch = 0):(prjDefault.rgbBlinkSwitch = 1);
@@ -466,7 +478,8 @@ void processCmd(unsigned char* cmdbuf){
             break;
         case t_ADD:
             arg1 = *p++;
-            int value1, value2, result;
+            int value1, value2;
+            long result;
             if (arg1 == t_WORD){
                 value1 = extractNum(p);
                 p+=2;
@@ -494,8 +507,14 @@ void processCmd(unsigned char* cmdbuf){
                 Serial.println(F("Bad ADD"));
                 return;
             }
-            result = value1 + value2;
-            snprintf(buf, sizeof(buf), "%d + %d = %d", value1, value2, result);
+            result = (long)value1 + (long)value2;
+            Serial.print(result);
+            Serial.print(" ");
+            Serial.print(sizeof(long));
+            Serial.print(" ");
+            Serial.print(sizeof(int));
+            Serial.println(" ");
+            snprintf(buf, sizeof(buf), "%d + %d = %ld", value1, value2, result);
             Serial.println(buf);
             break;
         case t_SET:
@@ -540,8 +559,7 @@ void processCmd(unsigned char* cmdbuf){
             } else if (arg1 == t_EEPROM){
                 dhtShowEEProm();
             } else if (arg1 == t_RGB){
-                snprintf(buf, sizeof(buf), "rgb %u %u %u", analogRead(t_RGB_RED),
-                            analogRead(t_RGB_GREEN), analogRead(t_RGB_BLUE));
+                snprintf(buf, sizeof(buf), "rgb [%d]", prjDefault.rgbCheck);
                 Serial.println(buf);
             } else {
                 Serial.println(F("Bad parameter for status"));

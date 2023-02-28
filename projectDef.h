@@ -5,6 +5,7 @@
 #define t_ON        1
 // pins go here
 #define t_DHT       2
+#define t_RGB_X     3
 #define t_RED       5
 #define t_GREEN     6
 #define t_RGB_RED   9

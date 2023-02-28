@@ -70,11 +70,17 @@ void tokenAddChar(char c){
     tokenState.len++;
 };
 
-void tokenAddNum(char c){
+int tokenAddNum(char c){
     int val = 0;
+    int x;
     val = c - '0';
-    tokenState.num = tokenState.num*10 + val;
+    x = tokenState.num*10 + val;
+    if (x < tokenState.num){
+        return -1;
+    }
+    tokenState.num = x;
     tokenAddChar(c);
+    return 0;
 };
 
 
@@ -202,7 +208,10 @@ unsigned char* parseInput(char* s){
             };
             break;
         case 2:
-            tokenAddNum(cur);
+            if (tokenAddNum(cur) == -1){
+                Serial.println(F("Bad Num"));
+                return 0;
+            };
             break;
         case 7:
             addCmdBuf(t_NEG);
