@@ -12,7 +12,6 @@
 *    Commands can be configured in defines       *
 *************************************************/
 
-
 //character array to help determine system state
 char stateTable[256] = {
     3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,

@@ -146,7 +146,7 @@ void twoBitState(unsigned int xval){
     }
 }
 
-static int bitSetLEDHelper_state = 0; //rotating from 0-3
+static int bitSetLEDHelper_state = 1; //rotating from 0-3
 
 void bitSetLEDHelper(){
     unsigned char xval;
@@ -169,7 +169,7 @@ void bitSetLEDHelper(){
     case 7:
         xval = prjDefault.ledByteVal&0x3;
         twoBitState(xval);
-        bitSetLEDHelper_state = 0;
+        bitSetLEDHelper_state = 1;
         break;
     case 3:
         xval = prjDefault.ledByteVal>>8&0x3;
@@ -446,6 +446,7 @@ void processCmd(unsigned char* cmdbuf){
                     Serial.println(F("RGB values must be between 0-255"));
                     return;
                 } else {
+                    prjDefault.rgbBlinkSwitch = 0;
                     rgbSetValue(value1, value2, value3);
                 }
                 break;

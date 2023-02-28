@@ -224,7 +224,7 @@ void dhtShowMaxTemp(){
     }
     tempHumidElement_t compareElement;
     tempHumidElement_t storeElement;
-    storeElement = tempHumidElement;
+    storeElement = {0.0, 0.0, {0}};
     for (int i=idx2adr(0); 
             i<idx2adr(dataInitElement.d_count); 
             i+=sizeof(tempHumidElement)){
@@ -244,7 +244,7 @@ void dhtShowMinTemp(){
     }
     tempHumidElement_t compareElement;
     tempHumidElement_t storeElement;
-    storeElement = tempHumidElement;
+    storeElement = {99.99, 0.0, {0}};
     for (int i=idx2adr(0); 
             i<idx2adr(dataInitElement.d_count); 
             i+=sizeof(tempHumidElement)){

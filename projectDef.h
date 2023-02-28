@@ -13,7 +13,6 @@
 #define t_RGB_BLUE  11
 #define t_D13       13
 
-
 #define t_UNKNOWN   40
 #define t_RGB       51
 #define t_SET       52
