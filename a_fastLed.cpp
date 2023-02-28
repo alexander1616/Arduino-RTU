@@ -2,6 +2,13 @@
 #include <FastLED.h>
 #include "projectDef.h"
 
+/*************************************************
+*      Addressable RGB LED Configuration         *
+*                                                *
+*    Configures RGB LED(s)                       *
+*    Uses FastLED Library function calls         *
+*************************************************/
+
 static CRGB ledsX[1];
 
 void a_fastLEDInit(){
