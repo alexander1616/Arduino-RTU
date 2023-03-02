@@ -29,6 +29,18 @@ void rtcPromptSetTime(){
     Clock.promptForTimeAndDate(Serial);
 }
 
+void rtcInputTime(unsigned char yr, unsigned char mth, unsigned char day, 
+                    unsigned char hr, unsigned char min, unsigned char sec){
+    DateTime tempTime;
+    tempTime.Year = yr;
+    tempTime.Month = mth;
+    tempTime.Day = day;
+    tempTime.Hour = hr;
+    tempTime.Minute = min;
+    tempTime.Second = sec;
+    rtcSetTime(tempTime);
+}
+
 void rtcSetup() {
   Clock.begin();
 }

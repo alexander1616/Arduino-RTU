@@ -124,7 +124,7 @@ cmdElement_t lookUpTable[] = {
     {'l', 'e', 3, t_LED},
     {'r', 'e', 3, t_RED},
     {'g', 'r', 5, t_GREEN},
-    {'d', '1', 3, t_D13},
+//    {'d', '1', 3, t_D13},
     {'s', 'e', 3, t_SET},
     {'b', 'l', 5, t_BLINK},
     {'l', 'e', 4, t_LEDS},
@@ -140,7 +140,8 @@ cmdElement_t lookUpTable[] = {
     {'m', 'a', 3, t_MAX},
     {'m', 'i', 3, t_MIN},
     {'r', 'g', 3, t_RGB},
-    {'s', 'h', 4, t_SHOW}
+    {'s', 'h', 4, t_SHOW},
+    {'a', 'l', 5, t_ALERT}
 };
 
 #define numCommand sizeof(lookUpTable)/sizeof(lookUpTable[0])

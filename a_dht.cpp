@@ -3,6 +3,7 @@
 #include <EEPROM.h>
 #include "projectDef.h"
 #include "a_rtc.h"
+#include "a_alarmStates.h"
 #define TEMP_INTERVAL 5000
 #define TEMP_STORE_INTERVAL 900000
 
@@ -20,7 +21,7 @@ void dhtEEPromInit();
 
 static float celToFahr(float cel){
     float fahr;
-    fahr = (cel*(9/5)) + 32;
+    fahr = (cel*(9.0/5.0)) + 32.0;
     return fahr;
 }
 
@@ -147,7 +148,16 @@ int dhtReadTemp(tempHumidElement_t *ep){
 }
 
 void dhtPrintTemp(tempHumidElement_t *ep) {
-  Clock.printTo(Serial, tempHumidElement.datetime); Serial.print(F(" "));
+    char buf[50];
+    snprintf(buf, sizeof(buf), "20%02d%02d%02d %02d%02d%02d ", 
+                            tempHumidElement.datetime.Year,
+                            tempHumidElement.datetime.Month,
+                            tempHumidElement.datetime.Day,
+                            tempHumidElement.datetime.Hour,
+                            tempHumidElement.datetime.Minute,
+                            tempHumidElement.datetime.Second);
+    Serial.print(buf);
+  //Clock.printTo(Serial, tempHumidElement.datetime); Serial.print(F(" "));
   Serial.print(ep->temperature); Serial.print(F(" *C, "));
   Serial.print(celToFahr(ep->temperature)); Serial.print(F(" *F, "));
   Serial.print(ep->humidity); Serial.println(F(" RH%"));
@@ -189,6 +199,7 @@ void dhtLoop(){
     unsigned long currentTime; //current time using millis
     unsigned long timeDiffRead; //compare value for read
     unsigned long timeDiffStore; //compare value for store
+    float ftemp;
     currentTime = millis();
     timeDiffRead = currentTime - tempTimeElement.prevTimeRead;
     timeDiffStore = currentTime - tempTimeElement.prevTimeStore;
@@ -198,8 +209,21 @@ void dhtLoop(){
             if(showTemp){
                 dhtShowTemp();
             }
-        };
+        }
+        ftemp = celToFahr(tempHumidElement.temperature);
+        if (ftemp <= 60.0){
+            alarmTemperature(1);
+        } else if ((ftemp > 60.0)&&(ftemp <= 70.0)){
+            alarmTemperature(2);
+        } else if ((ftemp > 70.0)&&(ftemp <= 80.0)){
+            alarmTemperature(3);
+        } else if ((ftemp > 80.0)&&(ftemp <= 90.0)){
+            alarmTemperature(4);
+        } else if (ftemp > 90.0){
+            alarmTemperature(5);
+        }
     }
+
     if (timeDiffStore >= tempTimeElement.timeDelayStore){
         //Serial.println("Storing");
         if (dataInitElement.d_iterator + sizeof(tempHumidElement)> 

@@ -3,6 +3,7 @@
 #include "a_rtc.h"
 #include "a_dht.h"
 #include "a_fastLed.h"
+#include "a_udp.h"
 #define P_VERSION "Program Version 2.0"
 
 /*************************************************
@@ -17,13 +18,13 @@ typedef struct {
   int red;
   int green;
   int colorstore;
-  int d13BlinkSwitch;
+//  int d13BlinkSwitch;
   int ledBlinkSwitch;
   int rgblink;
   int rgbBlinkSwitch;
   int rgbBlink;
   unsigned long timedelay;
-  unsigned long timestart;
+//  unsigned long timestart;
   unsigned long timestart2;
   unsigned long timestart3;
   unsigned long timestart4;
@@ -37,11 +38,12 @@ typedef struct {
   unsigned char rgbCheck;
 } prjDefault_t;
 
-prjDefault_t prjDefault = {LOW, LOW, 0, 0, 0, 0, 0, 0, 500, 
-                            0, 0, 0, 0, 66, 227, 245, 0, 
+prjDefault_t prjDefault = {LOW, LOW, 0, /*0,*/ 0, 0, 0, 0, 500, 
+                            /*0,*/ 0, 0, 0, 66, 227, 245, 0, 
                             0, 0, 0, 0};
 
 //blink functions for d13 and led
+#if 0
 void d13blink(){
     unsigned long timecurrent;
     timecurrent = millis();
@@ -52,7 +54,7 @@ void d13blink(){
         prjDefault.timestart = timecurrent;
     }
 }
-
+#endif
 void ledBlink(){
     unsigned long timecurrent;
     timecurrent = millis();
@@ -74,10 +76,10 @@ void rgbSetValue(unsigned int val1, unsigned int val2, unsigned int val3){
     prjDefault.rgbRed = (unsigned char)val1;
     prjDefault.rgbGreen = (unsigned char)val2;
     prjDefault.rgbBlue = (unsigned char)val3;
-    analogWrite(t_RGB_RED, prjDefault.rgbRed);
-    analogWrite(t_RGB_GREEN, prjDefault.rgbGreen);
-    analogWrite(t_RGB_BLUE, prjDefault.rgbBlue);
-    a_fastLEDSetVal(prjDefault.rgbRed, prjDefault.rgbGreen, prjDefault.rgbBlue);
+    // analogWrite(t_RGB_RED, prjDefault.rgbRed);
+    // analogWrite(t_RGB_GREEN, prjDefault.rgbGreen);
+    // analogWrite(t_RGB_BLUE, prjDefault.rgbBlue);
+    a_fastLEDSetValX(prjDefault.rgbRed, prjDefault.rgbGreen, prjDefault.rgbBlue);
     prjDefault.rgbCheck = 1;
 }
 
@@ -88,17 +90,17 @@ void rgbBlink(){
     tdelay = timecurrent - prjDefault.timestart4;
     if (tdelay >= prjDefault.timedelay){
         if (!prjDefault.rgbKey){
-            analogWrite(t_RGB_RED, prjDefault.rgbRed);
-            analogWrite(t_RGB_GREEN, prjDefault.rgbGreen);
-            analogWrite(t_RGB_BLUE, prjDefault.rgbBlue);
-            a_fastLEDSetVal(prjDefault.rgbRed, prjDefault.rgbGreen, prjDefault.rgbBlue);
+            // analogWrite(t_RGB_RED, prjDefault.rgbRed);
+            // analogWrite(t_RGB_GREEN, prjDefault.rgbGreen);
+            // analogWrite(t_RGB_BLUE, prjDefault.rgbBlue);
+            a_fastLEDSetValX(prjDefault.rgbRed, prjDefault.rgbGreen, prjDefault.rgbBlue);
             prjDefault.rgbKey = 1;
             prjDefault.rgbCheck = 1;
         } else {
-            analogWrite(t_RGB_RED, 0);
-            analogWrite(t_RGB_GREEN, 0);
-            analogWrite(t_RGB_BLUE, 0);
-            a_fastLEDSetVal(0, 0, 0);
+            // analogWrite(t_RGB_RED, 0);
+            // analogWrite(t_RGB_GREEN, 0);
+            // analogWrite(t_RGB_BLUE, 0);
+            a_fastLEDSetValX(0, 0, 0);
             prjDefault.rgbKey = 0;
             prjDefault.rgbCheck = 0;
         }
@@ -146,7 +148,7 @@ void twoBitState(unsigned int xval){
     }
 }
 
-static int bitSetLEDHelper_state = 1; //rotating from 0-3
+static int bitSetLEDHelper_state = 1; //rotating from 1-7
 
 void bitSetLEDHelper(){
     unsigned char xval;
@@ -206,9 +208,11 @@ void bitSetLED(){
 }
 
 void blinkLoop(){
+#if 0
     if (prjDefault.d13BlinkSwitch){
         d13blink();
     }
+#endif
     if (!prjDefault.ledByteSwitch){
         if (prjDefault.ledBlinkSwitch){
             if (prjDefault.rgblink){
@@ -226,6 +230,7 @@ void blinkLoop(){
 }
 
 //processing d13 pin, led pins, and rgb pins
+#if 0
 void d13Process(unsigned char arg){
   switch (arg){
   case t_ON:
@@ -241,6 +246,7 @@ void d13Process(unsigned char arg){
     break;
   }
 };
+#endif
 
 void ledProcess(unsigned char arg1){
   switch (arg1){
@@ -278,18 +284,18 @@ void rgbProcess(unsigned char arg){
   switch (arg){
   case t_ON:
     prjDefault.rgbBlinkSwitch = 0;
-    analogWrite(t_RGB_RED, prjDefault.rgbRed);
-    analogWrite(t_RGB_GREEN, prjDefault.rgbGreen);
-    analogWrite(t_RGB_BLUE, prjDefault.rgbBlue);
-    a_fastLEDSetVal(prjDefault.rgbRed, prjDefault.rgbGreen, prjDefault.rgbBlue);
+    // analogWrite(t_RGB_RED, prjDefault.rgbRed);
+    // analogWrite(t_RGB_GREEN, prjDefault.rgbGreen);
+    // analogWrite(t_RGB_BLUE, prjDefault.rgbBlue);
+    a_fastLEDSetValX(prjDefault.rgbRed, prjDefault.rgbGreen, prjDefault.rgbBlue);
     prjDefault.rgbCheck = 1;
     break;
   case t_OFF:
     prjDefault.rgbBlinkSwitch = 0;
-    analogWrite(t_RGB_RED, 0);
-    analogWrite(t_RGB_GREEN, 0);
-    analogWrite(t_RGB_BLUE, 0);
-    a_fastLEDSetVal(0, 0, 0);
+    // analogWrite(t_RGB_RED, 0);
+    // analogWrite(t_RGB_GREEN, 0);
+    // analogWrite(t_RGB_BLUE, 0);
+    a_fastLEDSetValX(0, 0, 0);
     prjDefault.rgbCheck = 0;
     break;
   case t_BLINK:
@@ -317,7 +323,7 @@ void processCmd(unsigned char* cmdbuf){
             Serial.println(F(P_VERSION));
             break;
         case t_HELP:
-#if 0
+/*
             Serial.println(F("************************************************************"));
             Serial.println(F("* Supported CMDs [cmd][arg1][arg2] - command sequence      *"));
             Serial.println(F("************************************************************"));
@@ -339,12 +345,12 @@ void processCmd(unsigned char* cmdbuf){
             Serial.println(F("* VERSION [cmd]             - current program version      *"));
             Serial.println(F("* HELP    [cmd]             - displays help menu           *"));
             Serial.println(F("************************************************************"));
-#else
+
             Serial.println(F("***********************************"));
             Serial.println(F("* Supported CMD [cmd][arg1][arg2] *"));
             Serial.println(F("***********************************"));
-            Serial.println(F("* [cmd] D13                       *"));
-            Serial.println(F("*   [arg1] ON, OFF, BLINK         *"));
+//            Serial.println(F("* [cmd] D13                       *"));
+//            Serial.println(F("*   [arg1] ON, OFF, BLINK         *"));
             Serial.println(F("* [cmd] LED                       *"));
             Serial.println(F("*   [arg1] RED, GREEN, OFF, 'NUM' *"));
             Serial.println(F("*   [arg1] BLINK (opt)[arg2] RG   *"));
@@ -365,8 +371,9 @@ void processCmd(unsigned char* cmdbuf){
             Serial.println(F("* [cmd] VERSION                   *"));
             Serial.println(F("* [cmd] HELP                      *"));
             Serial.println(F("***********************************"));
-#endif
+*/
             break;
+/*
         case t_D13:
             arg1 = *p++;
             switch (arg1) {
@@ -382,6 +389,7 @@ void processCmd(unsigned char* cmdbuf){
             }
             d13Process(arg1);
             break;
+*/
         case t_LED:
             arg1 = *p++;
             switch (arg1) {
@@ -535,7 +543,78 @@ void processCmd(unsigned char* cmdbuf){
                     return;
                 }
             } else if (arg1 == t_CLOCK){ //define tclock
-                rtcPromptSetTime();
+                //rtcPromptSetTime();
+                //rtcInputTime();
+                unsigned int year, month, day, hour, min, sec;
+                if (*p == t_WORD){
+                    p++;
+                    year = extractNum(p);
+                    p+=2;   
+                } else {
+                    Serial.println(F("Bad parameter for Year"));
+                    return;
+                }
+                if (*p == t_WORD){
+                    p++;
+                    month = extractNum(p);
+                    p+=2;   
+                } else {
+                    Serial.println(F("Bad parameter for Month"));
+                    return;
+                }
+                if (*p == t_WORD){
+                    p++;
+                    day = extractNum(p);
+                    p+=2;   
+                } else {
+                    Serial.println(F("Bad parameter for Day"));
+                    return;
+                }
+                if (*p == t_WORD){
+                    p++;
+                    hour = extractNum(p);
+                    p+=2;   
+                } else {
+                    Serial.println(F("Bad parameter for Hour"));
+                    return;
+                }
+                if (*p == t_WORD){
+                    p++;
+                    min = extractNum(p);
+                    p+=2;   
+                } else {
+                    Serial.println(F("Bad parameter for Minute"));
+                    return;
+                }
+                if (*p == t_WORD){
+                    p++;
+                    sec = extractNum(p);
+                    p+=2;   
+                } else {
+                    Serial.println(F("Bad parameter for Second"));
+                    return;
+                }
+                if ((year > 199) || (year < 0)){
+                    Serial.println(F("Year must be 0-199"));
+                    return;
+                } else if ((month > 12) || (month < 1)){
+                    Serial.println(F("Month must be 1-12"));
+                    return;
+                } else if ((day > 31) || (day < 1)){
+                    Serial.println(F("Day must be 1-31"));
+                    return;
+                } else if ((hour > 23) || (hour < 0)){
+                    Serial.println(F("Hour must be 0-23"));
+                    return;
+                } else if ((min > 60) || (min < 0)){
+                    Serial.println(F("Min must be 0-59"));
+                    return;
+                } else if ((sec > 59) || (sec < 0)){
+                    Serial.println(F("Sec must be 0-59"));
+                    return;
+                } else {
+                    rtcInputTime(year, month, day, hour, min, sec);
+                }
                 break;
             } else if (arg1 == t_EEPROM){
                 dhtEEPromInit();
@@ -545,11 +624,14 @@ void processCmd(unsigned char* cmdbuf){
                 return;
             }
             break;
+        case t_ALERT:
+            a_udpSendAlert("alex! alarm!");
+            break;
         case t_STATUS:
             arg1 = *p++;
             if (arg1 == t_LEDS){
-                snprintf(buf, sizeof(buf), "d13[%d], Red[%d], Green[%d]",
-                    digitalRead(t_D13), digitalRead(t_RED), digitalRead(t_GREEN));
+                snprintf(buf, sizeof(buf), "Red[%d], Green[%d]", /*removed d13*/
+                    digitalRead(t_RED), digitalRead(t_GREEN));
                 Serial.println(buf);
             } else if (arg1 == t_EEPROM){
                 dhtShowEEProm();

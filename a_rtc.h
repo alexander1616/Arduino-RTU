@@ -7,5 +7,7 @@ extern void rtcSetup();
 extern void rtcPromptSetTime();
 extern void rtcShowTime();
 extern DateTime rtcGetTime();
+extern void rtcInputTime(unsigned char, unsigned char, unsigned char,
+                            unsigned char, unsigned char, unsigned char);
 
 #endif

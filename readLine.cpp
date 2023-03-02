@@ -24,13 +24,13 @@ void moveCursorEnter(){
   char buf[] = {0x1b, 'D'};
   Serial.write(buf,2);
 }
-
+/*
 int readLineBufSize(){
     return buffer_size;
 }
 
 uchar_t* readLine(){
-  /*destroys buffer*/
+  //destroys buffer
   buffer_size = 0;
   int c;
   Serial.println(F("Enter a line please. "));
@@ -52,7 +52,7 @@ uchar_t* readLine(){
     }
   }
 }
-
+*/
 /*************************************************
  * serialReadLine                                *
  * 1) returns null if no input line detected     *
