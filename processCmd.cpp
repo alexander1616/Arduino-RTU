@@ -33,14 +33,14 @@ typedef struct {
   unsigned char rgbBlue; //0-255
   unsigned char rgbKey;
   unsigned long timestart5;
-  unsigned int ledByteVal; //byte value used for rotation
-  unsigned char ledByteSwitch; //flag control for byte blink
+  //unsigned int ledByteVal; //byte value used for rotation
+  //unsigned char ledByteSwitch; //flag control for byte blink
   unsigned char rgbCheck;
 } prjDefault_t;
 
 prjDefault_t prjDefault = {LOW, LOW, 0, /*0,*/ 0, 0, 0, 0, 500, 
                             /*0,*/ 0, 0, 0, 66, 227, 245, 0, 
-                            0, 0, 0, 0};
+                            0, /*0, 0,*/ 0};
 
 //blink functions for d13 and led
 #if 0
@@ -150,62 +150,62 @@ void twoBitState(unsigned int xval){
 
 static int bitSetLEDHelper_state = 1; //rotating from 1-7
 
-void bitSetLEDHelper(){
-    unsigned char xval;
-    switch (bitSetLEDHelper_state){
-    case 4:
-        xval = prjDefault.ledByteVal>>6&0x3;
-        twoBitState(xval);
-        bitSetLEDHelper_state++;
-        break;
-    case 5:
-        xval = prjDefault.ledByteVal>>4&0x3;
-        twoBitState(xval);
-        bitSetLEDHelper_state++;
-        break;
-    case 6:
-        xval = prjDefault.ledByteVal>>2&0x3;
-        twoBitState(xval);
-        bitSetLEDHelper_state++;
-        break;
-    case 7:
-        xval = prjDefault.ledByteVal&0x3;
-        twoBitState(xval);
-        bitSetLEDHelper_state = 1;
-        break;
-    case 3:
-        xval = prjDefault.ledByteVal>>8&0x3;
-        twoBitState(xval);
-        bitSetLEDHelper_state++;
-        break;
-    case 2:
-        xval = prjDefault.ledByteVal>>10&0x3;
-        twoBitState(xval);
-        bitSetLEDHelper_state++;
-        break;
-    case 1:
-        xval = prjDefault.ledByteVal>>12&0x3;
-        twoBitState(xval);
-        bitSetLEDHelper_state++;
-        break;
-    case 0:
-        xval = prjDefault.ledByteVal>>14&0x3;
-        twoBitState(xval);
-        bitSetLEDHelper_state++; 
-        break;
-    }
-}
+// void bitSetLEDHelper(){
+//     unsigned char xval;
+//     switch (bitSetLEDHelper_state){
+//     case 4:
+//         xval = prjDefault.ledByteVal>>6&0x3;
+//         twoBitState(xval);
+//         bitSetLEDHelper_state++;
+//         break;
+//     case 5:
+//         xval = prjDefault.ledByteVal>>4&0x3;
+//         twoBitState(xval);
+//         bitSetLEDHelper_state++;
+//         break;
+//     case 6:
+//         xval = prjDefault.ledByteVal>>2&0x3;
+//         twoBitState(xval);
+//         bitSetLEDHelper_state++;
+//         break;
+//     case 7:
+//         xval = prjDefault.ledByteVal&0x3;
+//         twoBitState(xval);
+//         bitSetLEDHelper_state = 1;
+//         break;
+//     case 3:
+//         xval = prjDefault.ledByteVal>>8&0x3;
+//         twoBitState(xval);
+//         bitSetLEDHelper_state++;
+//         break;
+//     case 2:
+//         xval = prjDefault.ledByteVal>>10&0x3;
+//         twoBitState(xval);
+//         bitSetLEDHelper_state++;
+//         break;
+//     case 1:
+//         xval = prjDefault.ledByteVal>>12&0x3;
+//         twoBitState(xval);
+//         bitSetLEDHelper_state++;
+//         break;
+//     case 0:
+//         xval = prjDefault.ledByteVal>>14&0x3;
+//         twoBitState(xval);
+//         bitSetLEDHelper_state++; 
+//         break;
+//     }
+// }
 
-void bitSetLED(){
-    unsigned long timecurrent;
-    timecurrent = millis();
-    unsigned long tdelay;
-    tdelay = timecurrent - prjDefault.timestart5;
-    if (tdelay >= prjDefault.timedelay){   
-        bitSetLEDHelper();
-        prjDefault.timestart5 = timecurrent;
-    }
-}
+// void bitSetLED(){
+//     unsigned long timecurrent;
+//     timecurrent = millis();
+//     unsigned long tdelay;
+//     tdelay = timecurrent - prjDefault.timestart5;
+//     if (tdelay >= prjDefault.timedelay){   
+//         bitSetLEDHelper();
+//         prjDefault.timestart5 = timecurrent;
+//     }
+// }
 
 void blinkLoop(){
 #if 0
@@ -213,7 +213,7 @@ void blinkLoop(){
         d13blink();
     }
 #endif
-    if (!prjDefault.ledByteSwitch){
+    // if (!prjDefault.ledByteSwitch){
         if (prjDefault.ledBlinkSwitch){
             if (prjDefault.rgblink){
                 rgBlink();
@@ -221,9 +221,9 @@ void blinkLoop(){
                 ledBlink();
             }
         }
-    } else {
-        bitSetLED();
-    }
+    // } else {
+    //     bitSetLED();
+    // }
     if (prjDefault.rgbBlinkSwitch){
         rgbBlink();
     }
@@ -253,7 +253,7 @@ void ledProcess(unsigned char arg1){
   case t_RED:
     prjDefault.ledBlinkSwitch = 0;
     prjDefault.rgblink = 0;
-    prjDefault.ledByteSwitch = 0;
+    //prjDefault.ledByteSwitch = 0;
     digitalWrite(t_GREEN, prjDefault.green = LOW);
     digitalWrite(t_RED, prjDefault.red = HIGH);
     prjDefault.colorstore = 0;
@@ -261,19 +261,19 @@ void ledProcess(unsigned char arg1){
   case t_GREEN:
     prjDefault.ledBlinkSwitch = 0;
     prjDefault.rgblink = 0;
-    prjDefault.ledByteSwitch = 0;
+    //prjDefault.ledByteSwitch = 0;
     digitalWrite(t_RED, prjDefault.red = LOW);
     digitalWrite(t_GREEN, prjDefault.green = HIGH);
     prjDefault.colorstore = 1;
     break;
   case t_BLINK:
-    prjDefault.ledByteSwitch = 0;
+    //prjDefault.ledByteSwitch = 0;
     prjDefault.ledBlinkSwitch = 1;
     break;
   case t_OFF:
     prjDefault.ledBlinkSwitch = 0;
     prjDefault.rgblink = 0;
-    prjDefault.ledByteSwitch = 0;
+    //prjDefault.ledByteSwitch = 0;
     digitalWrite(t_RED, prjDefault.red = LOW);
     digitalWrite(t_GREEN, prjDefault.green = LOW);
     break;
@@ -406,15 +406,15 @@ void processCmd(unsigned char* cmdbuf){
                     p++;
                 }
                 break;
-            case t_WORD:
-                unsigned int ledvalue;
-                ledvalue = extractNum(p);
-                p+=2;
-                prjDefault.ledByteVal = ledvalue; //0xff if mask for 4 state;
-                prjDefault.ledByteSwitch = 1;
-                //Serial.print(F("LED "));
-                Serial.println(prjDefault.ledByteVal, BIN);
-                return;
+            // case t_WORD:
+            //     unsigned int ledvalue;
+            //     ledvalue = extractNum(p);
+            //     p+=2;
+            //     prjDefault.ledByteVal = ledvalue; //0xff if mask for 4 state;
+            //     prjDefault.ledByteSwitch = 1;
+            //     //Serial.print(F("LED "));
+            //     Serial.println(prjDefault.ledByteVal, BIN);
+            //     return;
             default:
                 Serial.println(F("3"));
                 return;
@@ -550,7 +550,7 @@ void processCmd(unsigned char* cmdbuf){
             } else if (arg1 == t_CLOCK){ //define tclock
                 //rtcPromptSetTime();
                 //rtcInputTime();
-                unsigned int year, month, day, hour, min, sec;
+                unsigned int year, month, day, hour, min, sec, dow;
                 if (*p == t_WORD){
                     p++;
                     year = extractNum(p);
@@ -599,6 +599,14 @@ void processCmd(unsigned char* cmdbuf){
                     Serial.println(F("15"));
                     return;
                 }
+                if (*p == t_WORD){
+                    p++;
+                    dow = extractNum(p);
+                    p+=2;   
+                } else {
+                    Serial.println(F("26"));
+                    return;
+                }
                 if ((year > 199) || (year < 0)){
                     Serial.println(F("16"));
                     return;
@@ -617,8 +625,11 @@ void processCmd(unsigned char* cmdbuf){
                 } else if ((sec > 59) || (sec < 0)){
                     Serial.println(F("21"));
                     return;
+                } else if ((dow > 7) || (dow < 1)){
+                    Serial.println(F("27"));
+                    return;
                 } else {
-                    rtcInputTime(year, month, day, hour, min, sec);
+                    rtcInputTime(year, month, day, hour, min, sec, dow);
                 }
                 break;
             } else if (arg1 == t_EEPROM){

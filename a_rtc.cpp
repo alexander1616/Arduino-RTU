@@ -30,7 +30,8 @@ void rtcPromptSetTime(){
 }
 
 void rtcInputTime(unsigned char yr, unsigned char mth, unsigned char day, 
-                    unsigned char hr, unsigned char min, unsigned char sec){
+                    unsigned char hr, unsigned char min, unsigned char sec,
+                    unsigned char dow){
     DateTime tempTime;
     tempTime.Year = yr;
     tempTime.Month = mth;
@@ -38,6 +39,7 @@ void rtcInputTime(unsigned char yr, unsigned char mth, unsigned char day,
     tempTime.Hour = hr;
     tempTime.Minute = min;
     tempTime.Second = sec;
+    tempTime.Dow = dow;
     rtcSetTime(tempTime);
 }
 

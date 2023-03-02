@@ -27,3 +27,5 @@
 | 23   | Bad parameter for status        | ProcessCmd |
 | 24   | Not viable commands        | ProcessCmd |
 | 25   | Ethernet Cable Unplugged        | a_udp |
+| 26   | Bad parameter for Day of Week        | ProcessCmd |
+| 27   | Dow must be 1-7       | ProcessCmd |
