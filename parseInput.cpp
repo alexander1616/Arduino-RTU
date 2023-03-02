@@ -97,7 +97,7 @@ void addCmdBuf(unsigned char c){
     cmdBuf.buf[cmdBuf.count] = c;
     cmdBuf.count++;
     if (cmdBuf.count >= MAXCMDBUF){
-        Serial.println(F("Error, too many commands"));
+        Serial.println(F("0"));
     }
 };
 
@@ -150,7 +150,7 @@ unsigned char lookUpToken(char* s, int len){
     int i;
     char c = isUpperCase(s[0])?toLowerCase(s[0]):s[0];
     char c1 = isUpperCase(s[1])?toLowerCase(s[1]):s[1];
-    char buf[50];
+    //char buf[50];
     for (i = 0; i < numCommand; i++){
         if ((lookUpTable[i].key[0] == c) && 
             (lookUpTable[i].key[1] == c1) && 
@@ -160,8 +160,10 @@ unsigned char lookUpToken(char* s, int len){
                 return lookUpTable[i].cmd;
             }
     }
-    snprintf(buf, 50, "Bad Command:[%s]", s);
-    Serial.println(buf);
+    //snprintf(buf, 50, "Bad Command:[%s]", s);
+    Serial.print(F("1 "));
+    Serial.println(s);
+    //Serial.println(buf);
     return t_UNKNOWN;
 };
 
@@ -209,7 +211,7 @@ unsigned char* parseInput(char* s){
             break;
         case 2:
             if (tokenAddNum(cur) == -1){
-                Serial.println(F("Bad Num"));
+                Serial.println(F("2"));
                 return 0;
             };
             break;

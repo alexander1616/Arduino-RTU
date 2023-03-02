@@ -3,6 +3,13 @@
 #include <EthernetUdp.h>
 #include "a_alarmStates.h"
 
+/*************************************************
+*           Functionality with UDP               *
+*                                                *
+*    Reads incoming packet from UDP              *
+*    Processes data into a string buffer         *
+*************************************************/
+
 typedef struct {
     byte mac [6];
     unsigned int localPort;
@@ -39,7 +46,7 @@ char a_udpCheckStatus() {
       tdelay = timecurrent - outTime;
       if (tdelay >= 10000){
           if (Ethernet.linkStatus() == LinkOFF) {
-              Serial.println(F("cable"));
+              Serial.println(F("25"));
               outTime = millis();
               UdpData.udpLinkCheck = -2;
               UdpData.udpReady = -1;
@@ -50,7 +57,7 @@ char a_udpCheckStatus() {
         UdpData.udpReady = -1;
       }
   } else if (Ethernet.linkStatus() == LinkOFF) {
-      Serial.println(F("cable"));
+      Serial.println(F("25"));
       outTime = millis();
       UdpData.udpLinkCheck = -2;
       UdpData.udpReady = -1;
@@ -74,17 +81,17 @@ char* a_udpPacketReader() {
     }
     int packetSize = UdpData.Udp.parsePacket();
     if (packetSize) {
-        Serial.print("Received ");
+        Serial.print(F("Rcv "));
         Serial.println(packetSize);
-        Serial.print("From ");
+        Serial.print(F(" "));
         IPAddress remote = UdpData.Udp.remoteIP();
         for (int i=0; i < 4; i++) {
             Serial.print(remote[i], DEC);
             if (i < 3) {
-                Serial.print(".");
+                Serial.print(F("."));
             }
         }
-        Serial.print(", port ");
+        Serial.print(F(", p "));
         Serial.println(UdpData.Udp.remotePort());
 
         // read the packet into packetBuffer
@@ -93,14 +100,14 @@ char* a_udpPacketReader() {
         n = UdpData.Udp.read(UdpData.packetBuf, sizeof(UdpData.packetBuf));
         Serial.println(n);
         UdpData.packetBuf[n] = 0;
-        Serial.println("Contents:");
+        Serial.println(F("Buf"));
         Serial.println(UdpData.packetBuf);
         return UdpData.packetBuf;
     }
     return 0;
 }
 void a_udpSendAlert(char* msg){
-    Serial.print("UDP ");
+    Serial.print(F("UDP "));
     Serial.println(msg);
     // send a reply to the IP address and port that sent us the packet we received
     UdpData.Udp.beginPacket(UdpData.Udp.remoteIP(), UdpData.Udp.remotePort());

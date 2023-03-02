@@ -2,17 +2,22 @@
 #include "a_fastLed.h"
 #include "a_udp.h"
 
+/*************************************************
+*         LED and UDP Alarm Signals              *
+*                                                *
+*    Processes ambient threshholds and           *
+*    network conditions for UDP transmission     *
+*************************************************/
+
 char prevTemp = 0;
 
 void alarmNetwork(char netErr){
     switch (netErr) {
     case -1:
         a_fastLEDSetVal(255, 0, 0);
-        //a_udpSendAlert("err");
         break;
     case -2:
         a_fastLEDSetVal(255, 0, 255);
-        //a_udpSendAlert("err");
         break;
     case 0:
         a_fastLEDSetVal(0, 0, 0);

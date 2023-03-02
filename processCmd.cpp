@@ -4,7 +4,7 @@
 #include "a_dht.h"
 #include "a_fastLed.h"
 #include "a_udp.h"
-#define P_VERSION "Program Version 2.0"
+#define P_VERSION "V 2"
 
 /*************************************************
 *             Process Command                    *
@@ -311,7 +311,7 @@ int extractNum(unsigned char* cp){
 }
 
 void processCmd(unsigned char* cmdbuf){
-    char buf[50];
+    //char buf[50];
     unsigned char* p = cmdbuf;
     unsigned char cmd, arg1, arg2;
     while ((cmd = *p++) != t_EOL){
@@ -412,11 +412,11 @@ void processCmd(unsigned char* cmdbuf){
                 p+=2;
                 prjDefault.ledByteVal = ledvalue; //0xff if mask for 4 state;
                 prjDefault.ledByteSwitch = 1;
-                Serial.print(F("LED "));
+                //Serial.print(F("LED "));
                 Serial.println(prjDefault.ledByteVal, BIN);
                 return;
             default:
-                Serial.println(F("Bad parameter for LED"));
+                Serial.println(F("3"));
                 return;
             }
             ledProcess(arg1);
@@ -439,7 +439,7 @@ void processCmd(unsigned char* cmdbuf){
                     value2 = extractNum(p);
                     p+=2;   
                 } else {
-                    Serial.println(F("Bad parameter for RGB"));
+                    Serial.println(F("4"));
                     return;
                 }
                 if (*p == t_WORD){
@@ -447,11 +447,11 @@ void processCmd(unsigned char* cmdbuf){
                     value3 = extractNum(p);
                     p+=2;   
                 } else {
-                    Serial.println(F("Bad parameter for RGB"));
+                    Serial.println(F("4"));
                     return;
                 }
                 if ((value1 > 255) || (value2 > 255) || (value3 > 255)){
-                    Serial.println(F("RGB values must be between 0-255"));
+                    Serial.println(F("5"));
                     return;
                 } else {
                     prjDefault.rgbBlinkSwitch = 0;
@@ -459,7 +459,7 @@ void processCmd(unsigned char* cmdbuf){
                 }
                 break;
             default:
-                Serial.println(F("Bad parameter for RGB"));
+                Serial.println(F("4"));
                 return;
             }
             rgbProcess(arg1);
@@ -482,7 +482,7 @@ void processCmd(unsigned char* cmdbuf){
             } else if (arg1 == t_SHOW){
                 dhtShowTemp();
             } else {
-                Serial.println(F("Bad TEMP Params"));
+                Serial.println(F("6"));
             }
             break;
         case t_ADD:
@@ -499,7 +499,7 @@ void processCmd(unsigned char* cmdbuf){
                     p+=2;
                 }
             } else {
-                Serial.println(F("Bad ADD"));
+                Serial.println(F("7"));
                 return;
             }
             arg2 = *p++;
@@ -513,12 +513,17 @@ void processCmd(unsigned char* cmdbuf){
                     p+=2;
                 }
             } else {
-                Serial.println(F("Bad ADD"));
+                Serial.println(F("7"));
                 return;
             }
             result = (long)value1 + (long)value2;
-            snprintf(buf, sizeof(buf), "%d + %d = %ld", value1, value2, result);
-            Serial.println(buf);
+            Serial.print(value1);
+            Serial.print(F(" + "));
+            Serial.print(value2);
+            Serial.print(F(" = "));
+            Serial.println(result);
+            // snprintf(buf, sizeof(buf), "%d + %d = %ld", value1, value2, result);
+            // Serial.println(buf);
             break;
         case t_SET:
             //int highb;
@@ -533,13 +538,13 @@ void processCmd(unsigned char* cmdbuf){
                     prjDefault.timedelay = extractNum(p);
                     p+=2;
                     if (prjDefault.timedelay > 10000){
-                        Serial.println(F("Error, delay cannot exceed 10000ms"));
+                        Serial.println(F("8"));
                         return;
                     }
-                    Serial.print(F("Interval is set: "));
+                    Serial.print(F("Set "));
                     Serial.println(prjDefault.timedelay);
                 } else {
-                    Serial.println(F("Bad parameter for interval"));
+                    Serial.println(F("9"));
                     return;
                 }
             } else if (arg1 == t_CLOCK){ //define tclock
@@ -551,7 +556,7 @@ void processCmd(unsigned char* cmdbuf){
                     year = extractNum(p);
                     p+=2;   
                 } else {
-                    Serial.println(F("Bad parameter for Year"));
+                    Serial.println(F("10"));
                     return;
                 }
                 if (*p == t_WORD){
@@ -559,7 +564,7 @@ void processCmd(unsigned char* cmdbuf){
                     month = extractNum(p);
                     p+=2;   
                 } else {
-                    Serial.println(F("Bad parameter for Month"));
+                    Serial.println(F("11"));
                     return;
                 }
                 if (*p == t_WORD){
@@ -567,7 +572,7 @@ void processCmd(unsigned char* cmdbuf){
                     day = extractNum(p);
                     p+=2;   
                 } else {
-                    Serial.println(F("Bad parameter for Day"));
+                    Serial.println(F("12"));
                     return;
                 }
                 if (*p == t_WORD){
@@ -575,7 +580,7 @@ void processCmd(unsigned char* cmdbuf){
                     hour = extractNum(p);
                     p+=2;   
                 } else {
-                    Serial.println(F("Bad parameter for Hour"));
+                    Serial.println(F("13"));
                     return;
                 }
                 if (*p == t_WORD){
@@ -583,7 +588,7 @@ void processCmd(unsigned char* cmdbuf){
                     min = extractNum(p);
                     p+=2;   
                 } else {
-                    Serial.println(F("Bad parameter for Minute"));
+                    Serial.println(F("14"));
                     return;
                 }
                 if (*p == t_WORD){
@@ -591,26 +596,26 @@ void processCmd(unsigned char* cmdbuf){
                     sec = extractNum(p);
                     p+=2;   
                 } else {
-                    Serial.println(F("Bad parameter for Second"));
+                    Serial.println(F("15"));
                     return;
                 }
                 if ((year > 199) || (year < 0)){
-                    Serial.println(F("Year must be 0-199"));
+                    Serial.println(F("16"));
                     return;
                 } else if ((month > 12) || (month < 1)){
-                    Serial.println(F("Month must be 1-12"));
+                    Serial.println(F("17"));
                     return;
                 } else if ((day > 31) || (day < 1)){
-                    Serial.println(F("Day must be 1-31"));
+                    Serial.println(F("18"));
                     return;
                 } else if ((hour > 23) || (hour < 0)){
-                    Serial.println(F("Hour must be 0-23"));
+                    Serial.println(F("19"));
                     return;
                 } else if ((min > 60) || (min < 0)){
-                    Serial.println(F("Min must be 0-59"));
+                    Serial.println(F("20"));
                     return;
                 } else if ((sec > 59) || (sec < 0)){
-                    Serial.println(F("Sec must be 0-59"));
+                    Serial.println(F("21"));
                     return;
                 } else {
                     rtcInputTime(year, month, day, hour, min, sec);
@@ -620,31 +625,41 @@ void processCmd(unsigned char* cmdbuf){
                 dhtEEPromInit();
                 break;
             } else {
-                Serial.println(F("Bad parameter for SET"));
+                Serial.println(F("22"));
                 return;
             }
             break;
         case t_ALERT:
-            a_udpSendAlert("alex! alarm!");
+            a_udpSendAlert("alert!");
             break;
         case t_STATUS:
             arg1 = *p++;
             if (arg1 == t_LEDS){
-                snprintf(buf, sizeof(buf), "Red[%d], Green[%d]", /*removed d13*/
-                    digitalRead(t_RED), digitalRead(t_GREEN));
-                Serial.println(buf);
+                int red, green;
+                red = digitalRead(t_RED);
+                green = digitalRead(t_GREEN);
+                Serial.print(F("R "));
+                Serial.print(red);
+                Serial.print(F(" G "));
+                Serial.println(green);
+                // snprintf(buf, sizeof(buf), "Red[%d], Green[%d]", /*removed d13*/
+                //     digitalRead(t_RED), digitalRead(t_GREEN));
+                // Serial.println(buf);
             } else if (arg1 == t_EEPROM){
                 dhtShowEEProm();
             } else if (arg1 == t_RGB){
-                snprintf(buf, sizeof(buf), "rgb [%d]", prjDefault.rgbCheck);
-                Serial.println(buf);
+                char rgb = prjDefault.rgbCheck;
+                Serial.print(F("RGB "));
+                Serial.println(rgb);
+                // snprintf(buf, sizeof(buf), "rgb [%d]", prjDefault.rgbCheck);
+                // Serial.println(buf);
             } else {
-                Serial.println(F("Bad parameter for status"));
+                Serial.println(F("23"));
                 return;
             }
             break;
         default:
-            Serial.println(F("Not viable commands"));
+            Serial.println(F("24"));
             break;
         }
     }

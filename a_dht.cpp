@@ -135,8 +135,8 @@ int dhtReadTemp(tempHumidElement_t *ep){
   float t_temp;
   float t_humid;
   if ((err = dht22.read2(&t_temp, &t_humid, NULL)) != SimpleDHTErrSuccess) {
-    Serial.print("Read DHT22 failed, err="); Serial.print(SimpleDHTErrCode(err));
-    Serial.print(","); Serial.println(SimpleDHTErrDuration(err));
+    Serial.print(F("dht22err=")); Serial.print(SimpleDHTErrCode(err));
+    Serial.print(F(",")); Serial.println(SimpleDHTErrDuration(err));
     return -1;
   } else {
     dht_dataFlag = 1;
@@ -148,7 +148,7 @@ int dhtReadTemp(tempHumidElement_t *ep){
 }
 
 void dhtPrintTemp(tempHumidElement_t *ep) {
-    char buf[50];
+    char buf[30];
     snprintf(buf, sizeof(buf), "20%02d%02d%02d %02d%02d%02d ", 
                             tempHumidElement.datetime.Year,
                             tempHumidElement.datetime.Month,
@@ -158,9 +158,9 @@ void dhtPrintTemp(tempHumidElement_t *ep) {
                             tempHumidElement.datetime.Second);
     Serial.print(buf);
   //Clock.printTo(Serial, tempHumidElement.datetime); Serial.print(F(" "));
-  Serial.print(ep->temperature); Serial.print(F(" *C, "));
-  Serial.print(celToFahr(ep->temperature)); Serial.print(F(" *F, "));
-  Serial.print(ep->humidity); Serial.println(F(" RH%"));
+  Serial.print(ep->temperature); Serial.print(F(" C, "));
+  Serial.print(celToFahr(ep->temperature)); Serial.print(F(" F, "));
+  Serial.print(ep->humidity); Serial.println(F(" RH"));
 }
 
 void dhtShowTemp(){
