@@ -323,6 +323,8 @@ void processCmd(unsigned char* cmdbuf){
             Serial.println(F(P_VERSION));
             break;
         case t_HELP:
+            Serial.println(F(CMD RGB/LED/SET/TEMP/ADD/CLOCK/VERSION/HELP/STATUS));
+            Serial.println(F(ARG ON/OFF/BLINK/LEDS/RGB/NUM));
 /*
             Serial.println(F("************************************************************"));
             Serial.println(F("* Supported CMDs [cmd][arg1][arg2] - command sequence      *"));

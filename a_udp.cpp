@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <Ethernet.h>
 #include <EthernetUdp.h>
+#include <SPI.h>
 #include "a_alarmStates.h"
 
 /*************************************************
