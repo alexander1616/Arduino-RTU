@@ -4,7 +4,9 @@
 #include "a_dht.h"
 #include "a_fastLed.h"
 #include "a_udp.h"
-#define P_VERSION "V 2"
+#define P_VERSION "V3"
+#define HELP_1 "CMD RGB/LED/SET/TEMP/ADD/CLOCK/VERSION/HELP/STATUS"
+#define HELP_2 "ARG ON/OFF/BLINK/LEDS/RGB/NUM"
 
 /*************************************************
 *             Process Command                    *
@@ -12,6 +14,9 @@
 *    Executes commands in sequence               *
 *    Viable command sequences defined in help    *
 *************************************************/
+
+char outputFlag = 0;
+extern char udpBuf[];
 
 //Structure to store function variables
 typedef struct {
@@ -315,65 +320,22 @@ void processCmd(unsigned char* cmdbuf){
     unsigned char* p = cmdbuf;
     unsigned char cmd, arg1, arg2;
     while ((cmd = *p++) != t_EOL){
-        // char buf[30];
-        // snprintf(buf, 30, "Process Command[%i]", cmd);
-        // Serial.println(buf);
         switch (cmd) {
         case t_VERSION:
-            Serial.println(F(P_VERSION));
+            if (outputFlag){
+                a_udpSendAlert(P_VERSION);
+            } else {
+                Serial.println(P_VERSION);
+            }
             break;
         case t_HELP:
-            Serial.println(F(CMD RGB/LED/SET/TEMP/ADD/CLOCK/VERSION/HELP/STATUS));
-            Serial.println(F(ARG ON/OFF/BLINK/LEDS/RGB/NUM));
-/*
-            Serial.println(F("************************************************************"));
-            Serial.println(F("* Supported CMDs [cmd][arg1][arg2] - command sequence      *"));
-            Serial.println(F("************************************************************"));
-            Serial.println(F("* D13     [cmd]             - access digital pin 13        *"));
-            Serial.println(F("*   ON         [arg1]       - turns digital pin on         *"));
-            Serial.println(F("*   OFF        [arg1]       - turns digital pin off        *"));
-            Serial.println(F("*   BLINK      [arg1]       - default 500 ms               *"));
-            Serial.println(F("* LED     [cmd]             - access dual LED pins         *"));
-            Serial.println(F("*   GREEN      [arg1]       - turns green LED on           *"));
-            Serial.println(F("*   RED        [arg1]       - turns red LED on             *"));
-            Serial.println(F("*   OFF        [arg1]       - turns led pins off           *"));
-            Serial.println(F("*   BLINK      [arg1]       - default 500 ms               *"));
-            Serial.println(F("*       RG           [arg2] - r-g blinking for dual LED    *"));
-            Serial.println(F("* SET     [cmd]             - sets blink interval          *"));
-            Serial.println(F("*   BLINK      [arg1]       - default 500 ms               *"));
-            Serial.println(F("*       500          [arg2] - configurable value for delay *"));
-            Serial.println(F("* STATUS  [cmd]             - status menu                  *"));
-            Serial.println(F("*   LEDS       [arg1]       - information about LEDs       *"));
-            Serial.println(F("* VERSION [cmd]             - current program version      *"));
-            Serial.println(F("* HELP    [cmd]             - displays help menu           *"));
-            Serial.println(F("************************************************************"));
-
-            Serial.println(F("***********************************"));
-            Serial.println(F("* Supported CMD [cmd][arg1][arg2] *"));
-            Serial.println(F("***********************************"));
-//            Serial.println(F("* [cmd] D13                       *"));
-//            Serial.println(F("*   [arg1] ON, OFF, BLINK         *"));
-            Serial.println(F("* [cmd] LED                       *"));
-            Serial.println(F("*   [arg1] RED, GREEN, OFF, 'NUM' *"));
-            Serial.println(F("*   [arg1] BLINK (opt)[arg2] RG   *"));
-            Serial.println(F("* [cmd] RGB                       *"));
-            Serial.println(F("*   [arg1] ON, OFF, BLINK         *"));
-            Serial.println(F("*   [arg1] 'NUM1' 'NUM2' 'NUM3'   *"));
-            Serial.println(F("* [cmd] TEMP                      *"));
-            Serial.println(F("*   [arg1] HISTORY, ON, OFF       *"));
-            Serial.println(F("*   [arg1] MAX, MIN, SHOW         *"));
-            Serial.println(F("* [cmd] SET                       *"));
-            Serial.println(F("*   [arg1] CLOCK, EEPROM          *"));
-            Serial.println(F("*   [arg1] BLINK [arg2] 'NUM'     *"));
-            Serial.println(F("* [cmd] ADD                       *"));
-            Serial.println(F("*   [arg1] 'NUM1' [arg2] 'NUM2'   *"));
-            Serial.println(F("* [cmd] STATUS                    *"));
-            Serial.println(F("*   [arg1] LEDS, EEPROM, RGB      *"));
-            Serial.println(F("* [cmd] CLOCK                     *"));
-            Serial.println(F("* [cmd] VERSION                   *"));
-            Serial.println(F("* [cmd] HELP                      *"));
-            Serial.println(F("***********************************"));
-*/
+            if (outputFlag){
+                a_udpSendAlert(HELP_1);
+                a_udpSendAlert(HELP_2);
+            } else {
+                Serial.println(HELP_1);
+                Serial.println(HELP_2);
+            }
             break;
 /*
         case t_D13:
@@ -519,13 +481,18 @@ void processCmd(unsigned char* cmdbuf){
                 return;
             }
             result = (long)value1 + (long)value2;
-            Serial.print(value1);
-            Serial.print(F(" + "));
-            Serial.print(value2);
-            Serial.print(F(" = "));
-            Serial.println(result);
-            // snprintf(buf, sizeof(buf), "%d + %d = %ld", value1, value2, result);
-            // Serial.println(buf);
+            
+            snprintf(udpBuf, 30, "%d+%d=%ld", value1, value2, result);
+            if (outputFlag){
+                a_udpSendAlert(udpBuf);
+            } else {
+                // Serial.print(value1);
+                // Serial.print(F(" + "));
+                // Serial.print(value2);
+                // Serial.print(F(" = "));
+                // Serial.println(result);
+                Serial.println(udpBuf);
+            }
             break;
         case t_SET:
             //int highb;

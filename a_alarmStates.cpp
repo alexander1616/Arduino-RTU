@@ -32,23 +32,23 @@ void alarmTemperature(char tval){
         switch (tval) {
         case 1:
             a_fastLEDSetVal1(255, 0, 255);
-            a_udpSendAlert("freezing!");
+            a_udpSendBroadcast("freezing!");
             break;
         case 2:
             a_fastLEDSetVal1(0, 0, 255);
-            a_udpSendAlert("cold");
+            a_udpSendBroadcast("cold");
             break;
         case 3:
             a_fastLEDSetVal1(0, 255, 0);
-            a_udpSendAlert("comfortable");
+            a_udpSendBroadcast("comfortable");
             break;
         case 4:
             a_fastLEDSetVal1(100, 64, 0);
-            a_udpSendAlert("hot");
+            a_udpSendBroadcast("hot");
             break;
         case 5:
             a_fastLEDSetVal1(255, 0, 0);
-            a_udpSendAlert("fire!");
+            a_udpSendBroadcast("fire!");
             break;
         }
         prevTemp = tval;

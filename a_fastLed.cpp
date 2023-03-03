@@ -3,7 +3,6 @@
 #include "projectDef.h"
 #define NUM_LEDS_XYZ 3
 
-
 /*************************************************
 *      Addressable RGB LED Configuration         *
 *                                                *

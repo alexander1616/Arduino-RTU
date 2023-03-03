@@ -9,6 +9,8 @@
 #include "a_fastLed.h"
 #include "a_udp.h"
 
+extern char outputFlag;
+
 void setup() {
     Serial.begin(115200);
     //pinMode(t_D13, OUTPUT);
@@ -18,7 +20,6 @@ void setup() {
     //pinMode(t_RGB_GREEN, OUTPUT);
     //pinMode(t_RGB_BLUE, OUTPUT);
     a_fastLEDInit();
-
     rtcSetup();
     dhtDataInit();
     a_udpSetup();
@@ -29,6 +30,7 @@ void loop() {
   unsigned char* cmdbuf;
   p = serialReadLine();
   if (p){
+    outputFlag = 0;
     cmdbuf = parseInput(p);
     if (cmdbuf){
       processCmd(cmdbuf);
@@ -36,11 +38,13 @@ void loop() {
   }
   p = a_udpPacketReader();
   if (p){
+    outputFlag = 1;
     cmdbuf = parseInput(p);
     if (cmdbuf){
       processCmd(cmdbuf);
     }
   }
+  outputFlag = 0;
   blinkLoop();
   dhtLoop();
 }

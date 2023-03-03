@@ -107,7 +107,23 @@ char* a_udpPacketReader() {
     }
     return 0;
 }
+
+void a_udpSendBroadcast(char* msg){
+    if (UdpData.udpReady){
+      return;
+    }
+    Serial.print(F("UDP "));
+    Serial.println(msg);
+    // send a reply to the IP address and port that sent us the packet we received
+    UdpData.Udp.beginPacket(IPAddress(255,255,255,255), 8888);
+    UdpData.Udp.write(msg);
+    UdpData.Udp.endPacket();
+}
+
 void a_udpSendAlert(char* msg){
+    if (UdpData.udpReady){
+      return;
+    }
     Serial.print(F("UDP "));
     Serial.println(msg);
     // send a reply to the IP address and port that sent us the packet we received

@@ -4,11 +4,14 @@
 #include "projectDef.h"
 #include "a_rtc.h"
 #include "a_alarmStates.h"
+#include "a_udp.h"
 #define TEMP_INTERVAL 5000
 #define TEMP_STORE_INTERVAL 900000
 
 extern DS3231_Simple Clock;
+extern char outputFlag;
 static char showTemp = 0;
+char udpBuf[60] = {0};
 
 /*************************************************
 *      Humidity and Temperature Reader           *
@@ -58,10 +61,6 @@ static unsigned char checkMagic() {
 }
 
 static void dhtPrintInitElementHdr(dataInitElement_t & hdr) {
-    // char buf[50];
-    // snprintf(buf, sizeof(buf), " Hdr adr %u count %u eleflag %u record size %u",
-    //          hdr.d_iterator,hdr.d_count, hdr.eleflag, sizeof(tempHumidElement_t));
-    // Serial.println(buf);
     Serial.print(F(" "));
     Serial.print(hdr.d_count);
     Serial.print(F(" "));
@@ -69,7 +68,18 @@ static void dhtPrintInitElementHdr(dataInitElement_t & hdr) {
 }
 
 void dhtShowEEProm() {
-  int   i;
+  int i;
+//   if (outputFlag){
+//     unsigned char buf[5];
+//     for (i = 0; i < 4; i++) {
+//       buf[i] = EEPROM[i];
+//     }
+//     a_udpSendAlert(buf);
+//     dataInitElement_t hdr;
+//     EEPROM.get(4, hdr);
+//     dhtPrintInitElementHdr(hdr);
+//       return;
+//   }
   /* print magic */
   for (i = 0; i < 4; i++) {
     Serial.print((char)EEPROM[i]);
@@ -78,7 +88,6 @@ void dhtShowEEProm() {
   dataInitElement_t hdr;
   EEPROM.get(4, hdr);
   dhtPrintInitElementHdr(hdr);
-
 
 #if 0
   /* print first rec */
@@ -151,40 +160,65 @@ int dhtReadTemp(tempHumidElement_t *ep){
   }
 }
 
+char* temp2str(float temp, float humid, char* buf){
+    int tdigit, tdec;
+    int hdigit, hdec;
+    tdigit = (int)temp;
+    hdigit = (int)humid;
+    tdec = ((int)(temp*10.0))%10;
+    hdec = ((int)(humid*10.0))%10;
+    snprintf(buf, 20, " %d.%dF %d.%dRH", tdigit, tdec, hdigit, hdec);
+    return buf;
+}
+
+char* dt2str(DateTime &dt, char* buf){
+    snprintf(buf, 21, "20%02d/%02d/%02d %02d:%02d:%02d ", 
+                            dt.Year, dt.Month, dt.Day,
+                            dt.Hour, dt.Minute, dt.Second);
+    return buf;
+}
+
 void dhtPrintTemp(tempHumidElement_t *ep) {
-    // char buf[30];
-    // snprintf(buf, sizeof(buf), "20%02d%02d%02d %02d%02d%02d ", 
+    //char dtbuf[43];
+    // snprintf(buf, sizeof(buf), "20%02d/%02d/%02d %02d:%02d:%02d ", 
     //                         tempHumidElement.datetime.Year,
     //                         tempHumidElement.datetime.Month,
     //                         tempHumidElement.datetime.Day,
     //                         tempHumidElement.datetime.Hour,
     //                         tempHumidElement.datetime.Minute,
     //                         tempHumidElement.datetime.Second);
-    // Serial.print(buf);
-    Serial.print(tempHumidElement.datetime.Month);
-    Serial.print(F("/"));
-    Serial.print(tempHumidElement.datetime.Day);
-    Serial.print(F("/"));
-    Serial.print(tempHumidElement.datetime.Year);
-    Serial.print(F(" "));
-    if (tempHumidElement.datetime.Hour < 10){
-        Serial.print(F("0"));
+    dt2str(tempHumidElement.datetime, udpBuf);
+    temp2str(celToFahr(tempHumidElement.temperature), tempHumidElement.humidity, udpBuf+19);
+    if (outputFlag){
+        a_udpSendAlert(udpBuf);
+    } else {
+        Serial.println(udpBuf);
+        // Serial.print(tempHumidElement.datetime.Month);
+        // Serial.print(F("/"));
+        // Serial.print(tempHumidElement.datetime.Day);
+        // Serial.print(F("/"));
+        // Serial.print(tempHumidElement.datetime.Year);
+        // Serial.print(F(" "));
+        // if (tempHumidElement.datetime.Hour < 10){
+        //     Serial.print(F("0"));
+        // }
+        // Serial.print(tempHumidElement.datetime.Hour);
+        // Serial.print(F(":"));
+        // if (tempHumidElement.datetime.Minute < 10){
+        //     Serial.print(F("0"));
+        // }
+        // Serial.print(tempHumidElement.datetime.Minute);
+        // Serial.print(F(":"));
+        // if (tempHumidElement.datetime.Second < 10){
+        //     Serial.print(F("0"));
+        // }
+        //Serial.print(tempHumidElement.datetime.Second);
+        // Serial.print(F(" "));
+        // Serial.print(ep->temperature); Serial.print(F("C "));
+        // Serial.print(celToFahr(ep->temperature)); Serial.print(F("F "));
+        // Serial.print(ep->humidity); Serial.println(F(" RH"));
+        
     }
-    Serial.print(tempHumidElement.datetime.Hour);
-    Serial.print(F(":"));
-    if (tempHumidElement.datetime.Minute < 10){
-        Serial.print(F("0"));
-    }
-    Serial.print(tempHumidElement.datetime.Minute);
-    Serial.print(F(":"));
-    if (tempHumidElement.datetime.Second < 10){
-        Serial.print(F("0"));
-    }
-    Serial.print(tempHumidElement.datetime.Second);
-    Serial.print(F(" "));
-    Serial.print(ep->temperature); Serial.print(F("C "));
-    Serial.print(celToFahr(ep->temperature)); Serial.print(F("F "));
-    Serial.print(ep->humidity); Serial.println(F(" RH"));
 }
 
 void dhtShowTemp(){

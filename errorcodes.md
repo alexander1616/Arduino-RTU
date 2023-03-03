@@ -1,4 +1,3 @@
-
 | Error Code  | Description | Process       |
 | :---        |    :----:   |          ---: |
 | 0      | Error, too many commands       | ParseInput   |

@@ -5,5 +5,6 @@ extern void a_udpSetup();
 extern char a_udpCheckStatus();
 extern void a_udpSendAlert(char*);
 extern char* a_udpPacketReader();
+extern void a_udpSendBroadcast(char*);
 
 #endif

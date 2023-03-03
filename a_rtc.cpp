@@ -15,7 +15,9 @@ void rtcSetTime(const DateTime & val){
 }
 
 DateTime rtcGetTime(){
-    return Clock.read();
+    DateTime tClock;
+    tClock = Clock.read();
+    return (tClock);
 }
 
 void rtcShowTime(){
