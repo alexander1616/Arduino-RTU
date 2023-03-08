@@ -4,6 +4,7 @@
 #include "a_dht.h"
 #include "a_fastLed.h"
 #include "a_udp.h"
+#include "a_lcd.h"
 #define P_VERSION "V3"
 #define HELP_1 "CMD RGB/LED/SET/TEMP/ADD/CLOCK/VERSION/HELP/STATUS"
 #define HELP_2 "ARG ON/OFF/BLINK/LEDS/RGB/NUM"
@@ -435,6 +436,7 @@ void processCmd(unsigned char* cmdbuf){
             arg1 = *p++;
             if (arg1 == t_HISTORY){
                 dhtShowHistory();
+                lcdShowHistory();
             } else if (arg1 == t_ON){
                 dhtSetShowTemp(1);    
             } else if (arg1 == t_OFF){
@@ -445,6 +447,7 @@ void processCmd(unsigned char* cmdbuf){
                 dhtShowMinTemp();
             } else if (arg1 == t_SHOW){
                 dhtShowTemp();
+                lcdShowTemp();
             } else {
                 Serial.println(F("6"));
             }

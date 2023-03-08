@@ -8,6 +8,7 @@
 #include "a_dht.h"
 #include "a_fastLed.h"
 #include "a_udp.h"
+#include "a_lcd.h"
 
 extern char outputFlag;
 
@@ -23,6 +24,7 @@ void setup() {
     rtcSetup();
     dhtDataInit();
     a_udpSetup();
+    a_lcdInit();
 }
 
 void loop() {
