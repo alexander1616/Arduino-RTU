@@ -5,9 +5,9 @@
 #include "a_fastLed.h"
 #include "a_udp.h"
 #include "a_lcd.h"
-#define P_VERSION "V3"
-#define HELP_1 "CMD RGB/LED/SET/TEMP/ADD/CLOCK/VERSION/HELP/STATUS"
-#define HELP_2 "ARG ON/OFF/BLINK/LEDS/RGB/NUM"
+#define P_VERSION "V4"
+#define HELP_1 "CMD SET/TEMP/ADD/CLOCK/VERSION/HELP/STATUS"
+#define HELP_2 "ARG ON/OFF/NUM"
 
 /*************************************************
 *             Process Command                    *
@@ -20,33 +20,33 @@ char outputFlag = 0;
 extern char udpBuf[];
 
 //Structure to store function variables
-typedef struct {
-  int red;
-  int green;
-  int colorstore;
+// typedef struct {
+//   int red;
+//   int green;
+//   int colorstore;
 //  int d13BlinkSwitch;
-  int ledBlinkSwitch;
-  int rgblink;
-  int rgbBlinkSwitch;
-  int rgbBlink;
-  unsigned long timedelay;
-//  unsigned long timestart;
-  unsigned long timestart2;
-  unsigned long timestart3;
-  unsigned long timestart4;
-  unsigned char rgbRed; //0-255
-  unsigned char rgbGreen; //0-255
-  unsigned char rgbBlue; //0-255
-  unsigned char rgbKey;
-  unsigned long timestart5;
-  //unsigned int ledByteVal; //byte value used for rotation
-  //unsigned char ledByteSwitch; //flag control for byte blink
-  unsigned char rgbCheck;
-} prjDefault_t;
+//  int ledBlinkSwitch;
+//  int rgblink;
+//   int rgbBlinkSwitch;
+// //  int rgbBlink;
+//   unsigned long timedelay;
+// //  unsigned long timestart;
+// //  unsigned long timestart2;
+// //  unsigned long timestart3;
+//   unsigned long timestart4;
+//   unsigned char rgbRed; //0-255
+//   unsigned char rgbGreen; //0-255
+//   unsigned char rgbBlue; //0-255
+//   unsigned char rgbKey;
+// //  unsigned long timestart5;
+//   //unsigned int ledByteVal; //byte value used for rotation
+//   //unsigned char ledByteSwitch; //flag control for byte blink
+//   unsigned char rgbCheck;
+// } prjDefault_t;
 
-prjDefault_t prjDefault = {LOW, LOW, 0, /*0,*/ 0, 0, 0, 0, 500, 
-                            /*0,*/ 0, 0, 0, 66, 227, 245, 0, 
-                            0, /*0, 0,*/ 0};
+// prjDefault_t prjDefault = {/*LOW, LOW, 0, 0, 0, 0, */0, /*0, */500, 
+//                             /*0, 0, 0, */0, 66, 227, 245, 0, 
+//                             /*0, 0, 0,*/ 0};
 
 //blink functions for d13 and led
 #if 0
@@ -61,100 +61,100 @@ void d13blink(){
     }
 }
 #endif
-void ledBlink(){
-    unsigned long timecurrent;
-    timecurrent = millis();
-    unsigned long tdelay;
-    tdelay = timecurrent - prjDefault.timestart2;
-    if (tdelay >= prjDefault.timedelay){     
-        if (prjDefault.colorstore == 0){
-            digitalWrite(t_GREEN, LOW);
-            digitalRead(t_RED)?(digitalWrite(t_RED, LOW)):(digitalWrite(t_RED, HIGH));
-        } else {
-            digitalWrite(t_RED, LOW);
-            digitalRead(t_GREEN)?(digitalWrite(t_GREEN, LOW)):(digitalWrite(t_GREEN, HIGH));
-        }
-        prjDefault.timestart2 = timecurrent;
-    }
-}
+// void ledBlink(){
+//     unsigned long timecurrent;
+//     timecurrent = millis();
+//     unsigned long tdelay;
+//     tdelay = timecurrent - prjDefault.timestart2;
+//     if (tdelay >= prjDefault.timedelay){     
+//         if (prjDefault.colorstore == 0){
+//             digitalWrite(t_GREEN, LOW);
+//             digitalRead(t_RED)?(digitalWrite(t_RED, LOW)):(digitalWrite(t_RED, HIGH));
+//         } else {
+//             digitalWrite(t_RED, LOW);
+//             digitalRead(t_GREEN)?(digitalWrite(t_GREEN, LOW)):(digitalWrite(t_GREEN, HIGH));
+//         }
+//         prjDefault.timestart2 = timecurrent;
+//     }
+// }
 
-void rgbSetValue(unsigned int val1, unsigned int val2, unsigned int val3){
-    prjDefault.rgbRed = (unsigned char)val1;
-    prjDefault.rgbGreen = (unsigned char)val2;
-    prjDefault.rgbBlue = (unsigned char)val3;
-    // analogWrite(t_RGB_RED, prjDefault.rgbRed);
-    // analogWrite(t_RGB_GREEN, prjDefault.rgbGreen);
-    // analogWrite(t_RGB_BLUE, prjDefault.rgbBlue);
-    a_fastLEDSetValX(prjDefault.rgbRed, prjDefault.rgbGreen, prjDefault.rgbBlue);
-    prjDefault.rgbCheck = 1;
-}
+// void rgbSetValue(unsigned int val1, unsigned int val2, unsigned int val3){
+//     prjDefault.rgbRed = (unsigned char)val1;
+//     prjDefault.rgbGreen = (unsigned char)val2;
+//     prjDefault.rgbBlue = (unsigned char)val3;
+//     // analogWrite(t_RGB_RED, prjDefault.rgbRed);
+//     // analogWrite(t_RGB_GREEN, prjDefault.rgbGreen);
+//     // analogWrite(t_RGB_BLUE, prjDefault.rgbBlue);
+//     a_fastLEDSetValX(prjDefault.rgbRed, prjDefault.rgbGreen, prjDefault.rgbBlue);
+//     prjDefault.rgbCheck = 1;
+// }
 
-void rgbBlink(){
-    unsigned long timecurrent;
-    timecurrent = millis();
-    unsigned long tdelay;
-    tdelay = timecurrent - prjDefault.timestart4;
-    if (tdelay >= prjDefault.timedelay){
-        if (!prjDefault.rgbKey){
-            // analogWrite(t_RGB_RED, prjDefault.rgbRed);
-            // analogWrite(t_RGB_GREEN, prjDefault.rgbGreen);
-            // analogWrite(t_RGB_BLUE, prjDefault.rgbBlue);
-            a_fastLEDSetValX(prjDefault.rgbRed, prjDefault.rgbGreen, prjDefault.rgbBlue);
-            prjDefault.rgbKey = 1;
-            prjDefault.rgbCheck = 1;
-        } else {
-            // analogWrite(t_RGB_RED, 0);
-            // analogWrite(t_RGB_GREEN, 0);
-            // analogWrite(t_RGB_BLUE, 0);
-            a_fastLEDSetValX(0, 0, 0);
-            prjDefault.rgbKey = 0;
-            prjDefault.rgbCheck = 0;
-        }
-        prjDefault.timestart4 = timecurrent;
-    }
-}
+// void rgbBlink(){
+//     unsigned long timecurrent;
+//     timecurrent = millis();
+//     unsigned long tdelay;
+//     tdelay = timecurrent - prjDefault.timestart4;
+//     if (tdelay >= prjDefault.timedelay){
+//         if (!prjDefault.rgbKey){
+//             // analogWrite(t_RGB_RED, prjDefault.rgbRed);
+//             // analogWrite(t_RGB_GREEN, prjDefault.rgbGreen);
+//             // analogWrite(t_RGB_BLUE, prjDefault.rgbBlue);
+//             a_fastLEDSetValX(prjDefault.rgbRed, prjDefault.rgbGreen, prjDefault.rgbBlue);
+//             prjDefault.rgbKey = 1;
+//             prjDefault.rgbCheck = 1;
+//         } else {
+//             // analogWrite(t_RGB_RED, 0);
+//             // analogWrite(t_RGB_GREEN, 0);
+//             // analogWrite(t_RGB_BLUE, 0);
+//             a_fastLEDSetValX(0, 0, 0);
+//             prjDefault.rgbKey = 0;
+//             prjDefault.rgbCheck = 0;
+//         }
+//         prjDefault.timestart4 = timecurrent;
+//     }
+// }
 
-void rgBlink(){
-    unsigned long timecurrent;
-    timecurrent = millis();
-    unsigned long tdelay;
-    tdelay = timecurrent - prjDefault.timestart3;
-    if (tdelay >= prjDefault.timedelay){
-        if (digitalRead(t_RED)){
-            digitalWrite(t_RED, LOW);
-            digitalWrite(t_GREEN, HIGH);
-        } else {
-            digitalWrite(t_GREEN, LOW);
-            digitalWrite(t_RED, HIGH);
-        }
-        prjDefault.timestart3 = timecurrent;
-    }
-}
+// void rgBlink(){
+//     unsigned long timecurrent;
+//     timecurrent = millis();
+//     unsigned long tdelay;
+//     tdelay = timecurrent - prjDefault.timestart3;
+//     if (tdelay >= prjDefault.timedelay){
+//         if (digitalRead(t_RED)){
+//             digitalWrite(t_RED, LOW);
+//             digitalWrite(t_GREEN, HIGH);
+//         } else {
+//             digitalWrite(t_GREEN, LOW);
+//             digitalWrite(t_RED, HIGH);
+//         }
+//         prjDefault.timestart3 = timecurrent;
+//     }
+// }
 
-void twoBitState(unsigned int xval){  
-    switch (xval){
-    case 0:
-        digitalWrite(5, LOW);
-        digitalWrite(6, LOW);
-        break;
-    case 1:
-        digitalWrite(5, HIGH);
-        digitalWrite(6, LOW);
-        break;
-    case 2:
-        digitalWrite(6, HIGH);
-        digitalWrite(5, LOW);
-        break;
-    case 3:
-        digitalWrite(5, LOW);
-        digitalWrite(5, LOW);
-        break;
-    default:
-        break;
-    }
-}
+// void twoBitState(unsigned int xval){  
+//     switch (xval){
+//     case 0:
+//         digitalWrite(5, LOW);
+//         digitalWrite(6, LOW);
+//         break;
+//     case 1:
+//         digitalWrite(5, HIGH);
+//         digitalWrite(6, LOW);
+//         break;
+//     case 2:
+//         digitalWrite(6, HIGH);
+//         digitalWrite(5, LOW);
+//         break;
+//     case 3:
+//         digitalWrite(5, LOW);
+//         digitalWrite(5, LOW);
+//         break;
+//     default:
+//         break;
+//     }
+// }
 
-static int bitSetLEDHelper_state = 1; //rotating from 1-7
+//static int bitSetLEDHelper_state = 1; //rotating from 1-7
 
 // void bitSetLEDHelper(){
 //     unsigned char xval;
@@ -212,13 +212,13 @@ static int bitSetLEDHelper_state = 1; //rotating from 1-7
 //         prjDefault.timestart5 = timecurrent;
 //     }
 // }
-
-void blinkLoop(){
 #if 0
+void blinkLoop(){
+
     if (prjDefault.d13BlinkSwitch){
         d13blink();
     }
-#endif
+
     // if (!prjDefault.ledByteSwitch){
         if (prjDefault.ledBlinkSwitch){
             if (prjDefault.rgblink){
@@ -230,11 +230,12 @@ void blinkLoop(){
     // } else {
     //     bitSetLED();
     // }
+
     if (prjDefault.rgbBlinkSwitch){
         rgbBlink();
     }
 }
-
+#endif
 //processing d13 pin, led pins, and rgb pins
 #if 0
 void d13Process(unsigned char arg){
@@ -254,61 +255,61 @@ void d13Process(unsigned char arg){
 };
 #endif
 
-void ledProcess(unsigned char arg1){
-  switch (arg1){
-  case t_RED:
-    prjDefault.ledBlinkSwitch = 0;
-    prjDefault.rgblink = 0;
-    //prjDefault.ledByteSwitch = 0;
-    digitalWrite(t_GREEN, prjDefault.green = LOW);
-    digitalWrite(t_RED, prjDefault.red = HIGH);
-    prjDefault.colorstore = 0;
-    break;
-  case t_GREEN:
-    prjDefault.ledBlinkSwitch = 0;
-    prjDefault.rgblink = 0;
-    //prjDefault.ledByteSwitch = 0;
-    digitalWrite(t_RED, prjDefault.red = LOW);
-    digitalWrite(t_GREEN, prjDefault.green = HIGH);
-    prjDefault.colorstore = 1;
-    break;
-  case t_BLINK:
-    //prjDefault.ledByteSwitch = 0;
-    prjDefault.ledBlinkSwitch = 1;
-    break;
-  case t_OFF:
-    prjDefault.ledBlinkSwitch = 0;
-    prjDefault.rgblink = 0;
-    //prjDefault.ledByteSwitch = 0;
-    digitalWrite(t_RED, prjDefault.red = LOW);
-    digitalWrite(t_GREEN, prjDefault.green = LOW);
-    break;
-  }
-}
+// void ledProcess(unsigned char arg1){
+//   switch (arg1){
+//   case t_RED:
+//     prjDefault.ledBlinkSwitch = 0;
+//     prjDefault.rgblink = 0;
+//     //prjDefault.ledByteSwitch = 0;
+//     digitalWrite(t_GREEN, prjDefault.green = LOW);
+//     digitalWrite(t_RED, prjDefault.red = HIGH);
+//     prjDefault.colorstore = 0;
+//     break;
+//   case t_GREEN:
+//     prjDefault.ledBlinkSwitch = 0;
+//     prjDefault.rgblink = 0;
+//     //prjDefault.ledByteSwitch = 0;
+//     digitalWrite(t_RED, prjDefault.red = LOW);
+//     digitalWrite(t_GREEN, prjDefault.green = HIGH);
+//     prjDefault.colorstore = 1;
+//     break;
+//   case t_BLINK:
+//     //prjDefault.ledByteSwitch = 0;
+//     prjDefault.ledBlinkSwitch = 1;
+//     break;
+//   case t_OFF:
+//     prjDefault.ledBlinkSwitch = 0;
+//     prjDefault.rgblink = 0;
+//     //prjDefault.ledByteSwitch = 0;
+//     digitalWrite(t_RED, prjDefault.red = LOW);
+//     digitalWrite(t_GREEN, prjDefault.green = LOW);
+//     break;
+//   }
+// }
 
-void rgbProcess(unsigned char arg){
-  switch (arg){
-  case t_ON:
-    prjDefault.rgbBlinkSwitch = 0;
-    // analogWrite(t_RGB_RED, prjDefault.rgbRed);
-    // analogWrite(t_RGB_GREEN, prjDefault.rgbGreen);
-    // analogWrite(t_RGB_BLUE, prjDefault.rgbBlue);
-    a_fastLEDSetValX(prjDefault.rgbRed, prjDefault.rgbGreen, prjDefault.rgbBlue);
-    prjDefault.rgbCheck = 1;
-    break;
-  case t_OFF:
-    prjDefault.rgbBlinkSwitch = 0;
-    // analogWrite(t_RGB_RED, 0);
-    // analogWrite(t_RGB_GREEN, 0);
-    // analogWrite(t_RGB_BLUE, 0);
-    a_fastLEDSetValX(0, 0, 0);
-    prjDefault.rgbCheck = 0;
-    break;
-  case t_BLINK:
-    prjDefault.rgbBlinkSwitch?(prjDefault.rgbBlinkSwitch = 0):(prjDefault.rgbBlinkSwitch = 1);
-    break;
-  }
-};
+// void rgbProcess(unsigned char arg){
+//   switch (arg){
+//   case t_ON:
+//     prjDefault.rgbBlinkSwitch = 0;
+//     // analogWrite(t_RGB_RED, prjDefault.rgbRed);
+//     // analogWrite(t_RGB_GREEN, prjDefault.rgbGreen);
+//     // analogWrite(t_RGB_BLUE, prjDefault.rgbBlue);
+//     a_fastLEDSetValX(prjDefault.rgbRed, prjDefault.rgbGreen, prjDefault.rgbBlue);
+//     prjDefault.rgbCheck = 1;
+//     break;
+//   case t_OFF:
+//     prjDefault.rgbBlinkSwitch = 0;
+//     // analogWrite(t_RGB_RED, 0);
+//     // analogWrite(t_RGB_GREEN, 0);
+//     // analogWrite(t_RGB_BLUE, 0);
+//     a_fastLEDSetValX(0, 0, 0);
+//     prjDefault.rgbCheck = 0;
+//     break;
+//   case t_BLINK:
+//     prjDefault.rgbBlinkSwitch?(prjDefault.rgbBlinkSwitch = 0):(prjDefault.rgbBlinkSwitch = 1);
+//     break;
+//   }
+// };
 
 int extractNum(unsigned char* cp){
     int value;
@@ -354,7 +355,7 @@ void processCmd(unsigned char* cmdbuf){
             }
             d13Process(arg1);
             break;
-*/
+
         case t_LED:
             arg1 = *p++;
             switch (arg1) {
@@ -386,6 +387,7 @@ void processCmd(unsigned char* cmdbuf){
             }
             ledProcess(arg1);
             break;
+
         case t_RGB:
             arg1 = *p++;
             switch (arg1) {
@@ -429,6 +431,7 @@ void processCmd(unsigned char* cmdbuf){
             }
             rgbProcess(arg1);
             break;
+*/
         case t_CLOCK:
             rtcShowTime();
             break;
@@ -436,7 +439,7 @@ void processCmd(unsigned char* cmdbuf){
             arg1 = *p++;
             if (arg1 == t_HISTORY){
                 dhtShowHistory();
-                lcdShowHistory();
+                //lcdShowHistory();
             } else if (arg1 == t_ON){
                 dhtSetShowTemp(1);    
             } else if (arg1 == t_OFF){
@@ -447,7 +450,7 @@ void processCmd(unsigned char* cmdbuf){
                 dhtShowMinTemp();
             } else if (arg1 == t_SHOW){
                 dhtShowTemp();
-                lcdShowTemp();
+                //lcdShowTemp();
             } else {
                 Serial.println(F("6"));
             }
@@ -501,25 +504,25 @@ void processCmd(unsigned char* cmdbuf){
             //int highb;
             //int lowb;
             arg1 = *p++;
-            if (arg1 == t_BLINK){
-                arg2 = *p++;
-                if (arg2 == t_WORD){
-                    //highb = *p++;
-                    //lowb = *p++;
-                    //prjDefault.timedelay = (highb<<8)|(lowb);
-                    prjDefault.timedelay = extractNum(p);
-                    p+=2;
-                    if (prjDefault.timedelay > 10000){
-                        Serial.println(F("8"));
-                        return;
-                    }
-                    Serial.print(F("Set "));
-                    Serial.println(prjDefault.timedelay);
-                } else {
-                    Serial.println(F("9"));
-                    return;
-                }
-            } else if (arg1 == t_CLOCK){ //define tclock
+            // if (arg1 == t_BLINK){
+            //     arg2 = *p++;
+            //     if (arg2 == t_WORD){
+            //         //highb = *p++;
+            //         //lowb = *p++;
+            //         //prjDefault.timedelay = (highb<<8)|(lowb);
+            //         prjDefault.timedelay = extractNum(p);
+            //         p+=2;
+            //         if (prjDefault.timedelay > 10000){
+            //             Serial.println(F("8"));
+            //             return;
+            //         }
+            //         Serial.print(F("Set "));
+            //         Serial.println(prjDefault.timedelay);
+            //     } else {
+            //         Serial.println(F("9"));
+            //         return;
+            //     }
+            /*} else */if (arg1 == t_CLOCK){ //define tclock
                 //rtcPromptSetTime();
                 //rtcInputTime();
                 unsigned int year, month, day, hour, min, sec, dow;
@@ -617,26 +620,26 @@ void processCmd(unsigned char* cmdbuf){
             break;
         case t_STATUS:
             arg1 = *p++;
-            if (arg1 == t_LEDS){
-                int red, green;
-                red = digitalRead(t_RED);
-                green = digitalRead(t_GREEN);
-                Serial.print(F("R "));
-                Serial.print(red);
-                Serial.print(F(" G "));
-                Serial.println(green);
+            // if (arg1 == t_LEDS){
+            //     int red, green;
+            //     red = digitalRead(t_RED);
+            //     green = digitalRead(t_GREEN);
+            //     Serial.print(F("R "));
+            //     Serial.print(red);
+            //     Serial.print(F(" G "));
+            //     Serial.println(green);
                 // snprintf(buf, sizeof(buf), "Red[%d], Green[%d]", /*removed d13*/
                 //     digitalRead(t_RED), digitalRead(t_GREEN));
                 // Serial.println(buf);
-            } else if (arg1 == t_EEPROM){
+            /*} else*/ if (arg1 == t_EEPROM){
                 dhtShowEEProm();
-            } else if (arg1 == t_RGB){
+            } /*else if (arg1 == t_RGB){
                 char rgb = prjDefault.rgbCheck;
                 Serial.print(F("RGB "));
                 Serial.println(rgb);
                 // snprintf(buf, sizeof(buf), "rgb [%d]", prjDefault.rgbCheck);
                 // Serial.println(buf);
-            } else {
+            } */else {
                 Serial.println(F("23"));
                 return;
             }

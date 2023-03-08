@@ -15,16 +15,16 @@ extern char outputFlag;
 void setup() {
     Serial.begin(115200);
     //pinMode(t_D13, OUTPUT);
-    pinMode(t_RED, OUTPUT);
-    pinMode(t_GREEN, OUTPUT);
+    //pinMode(t_RED, OUTPUT);
+    //pinMode(t_GREEN, OUTPUT);
     //pinMode(t_RGB_RED, OUTPUT);
     //pinMode(t_RGB_GREEN, OUTPUT);
     //pinMode(t_RGB_BLUE, OUTPUT);
     a_fastLEDInit();
     rtcSetup();
-    dhtDataInit();
-    a_udpSetup();
     a_lcdInit();
+    dhtDataInit();
+    //a_udpSetup();
 }
 
 void loop() {
@@ -47,6 +47,7 @@ void loop() {
     }
   }
   outputFlag = 0;
-  blinkLoop();
+  //blinkLoop();
   dhtLoop();
+  a_lcdLoopMenu();
 }

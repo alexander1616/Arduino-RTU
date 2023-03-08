@@ -1,26 +1,28 @@
 #include <Arduino.h>
 #include "a_analogButton.h"
-#include "a_lcdSetting.h"
+#include "a_lcdTuple.h"
 #include "a_lcd.h"
 
 /*************************************************
-*            LCD Setting Display                 *
+*            Tuple Setting Display               *
 *                                                *
-*    Displays main page for configuring setting  *
+*    Displays main page for configuring tuples   *
 *    Functionality: Select, Enter, LCD display   *
 *************************************************/
 
 /*
 *   2 LINE LCD
 *
-*   IP  Msk Gat Tem  -> 4 bytes tuple
+*   192.168. 10. 23  -> 4 bytes tuple
 *           ^^^      -> current marker 0-3
 *                         up key will increase the number
 *                         dn key will decrease the number
+*  setTuple -> initial tuple setting of the number
+*  getTuple -> set the tuple to dst place
 *
 */
 
-lcdSetting lcdSettingData;
+lcdTuple lcdTupleData;
 
 #define KEY_LEFT 1
 #define KEY_RIGHT 4
@@ -30,11 +32,14 @@ lcdSetting lcdSettingData;
 #define KEY_REFRESH 0
 
 
-void lcdSetting::procKey(char key) {
+void lcdTuple::procKey(char key) {
 	if (key == KEY_UP) {
 		byteBuf[cur] = byteBuf[cur] + 1; 
+		drawLine0();
 	} else if (key == KEY_DOWN) {
 		byteBuf[cur] = byteBuf[cur] - 1; 
+		drawLine0();
+
 	} else if (key == KEY_LEFT) {
 		cur--;
 		if (cur < 0) {
@@ -51,22 +56,31 @@ void lcdSetting::procKey(char key) {
 	}
 }
 
-void lcdSetting::setSetting(char mode) {
-	cur = mode;	
+void lcdTuple::setTuple(unsigned char * src_p) {
+	for (int i = 0; i < 4; i++) {
+		byteBuf[i] = *src_p++;
+	}
+	cur = 3;	// usually start from the last tuple
 }
 
-char lcdSetting::getSetting() {
-	return cur;
+void lcdTuple::getTuple(unsigned char * dst_p) {
+	for (int i = 0; i < 4; i++) {
+		*dst_p++ = byteBuf[i];
+	}
 }
 
 //
 //	Drawing the lcd here
 //
-void lcdSetting::drawLine0() {
-	a_lcdPrint(0, "I.P MSK G.W TEM");
+void lcdTuple::drawLine0() {
+	char buf[17];
+	snprintf(buf, 17, "%3d.%3d.%3d.%3d", 
+			byteBuf[0], byteBuf[1], byteBuf[2], byteBuf[3]);
+	buf[15] = 0;
+	a_lcdPrint(0, buf);
 }
 
-void lcdSetting::drawLine1() {
+void lcdTuple::drawLine1() {
 	char buf[17];
 	char *cp = buf;
 	for (char i = 0; i < 4; i++) {
