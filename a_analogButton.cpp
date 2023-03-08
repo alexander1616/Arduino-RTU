@@ -2,6 +2,13 @@
 #include "a_analogButton.h"
 #define ANALOG_PIN A0
 
+/*************************************************
+*         Analog Button Library                  *
+*                                                *
+*    Processes analog readings from button       *
+*    Uses bit pattern to filter out noise        *
+*************************************************/
+
 //hardware interface
 static char buttonKey(){
   unsigned int n, ns;
